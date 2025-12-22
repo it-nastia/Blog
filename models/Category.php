@@ -14,6 +14,7 @@ use yii\helpers\Inflector;
  * @property string $name
  * @property string $slug
  * @property string|null $description
+ * @property string|null $image
  * @property int $created_at
  * @property int $updated_at
  *
@@ -48,7 +49,7 @@ class Category extends ActiveRecord
             [['name', 'slug'], 'required'],
             [['description'], 'string'],
             [['created_at', 'updated_at'], 'integer'],
-            [['name', 'slug'], 'string', 'max' => 255],
+            [['name', 'slug', 'image'], 'string', 'max' => 255],
             [['name'], 'unique'],
             [['slug'], 'unique'],
         ];
@@ -64,6 +65,7 @@ class Category extends ActiveRecord
             'name' => 'Name',
             'slug' => 'Slug',
             'description' => 'Description',
+            'image' => 'Image',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];

@@ -30,7 +30,7 @@ class UserController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['profile', 'update'],
+                        'actions' => ['profile', 'update', 'category-create', 'category-update', 'category-delete'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -80,11 +80,102 @@ class UserController extends Controller
             }
         }
 
+        // Обробка створення категорії
+        $categoryModel = new Category();
+        if (Yii::$app->request->post('Category') && Yii::$app->request->post('create-category')) {
+            if ($categoryModel->load(Yii::$app->request->post()) && $categoryModel->save()) {
+                Yii::$app->session->setFlash('success', 'Category created successfully.');
+                return $this->refresh();
+            } else {
+                Yii::$app->session->setFlash('error', 'Failed to create category.');
+            }
+        }
+
         return $this->render('profile', [
             'user' => $user,
             'model' => $model,
             'stats' => $stats,
+            'categoryModel' => $categoryModel,
         ]);
+    }
+
+    /**
+     * Creates a new category from profile page.
+     * @return Response
+     */
+    public function actionCategoryCreate()
+    {
+        if (!Yii::$app->user->identity->isAuthor()) {
+            throw new NotFoundHttpException('Only authors can create categories.');
+        }
+
+        $model = new Category();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Category created successfully.');
+        } else {
+            $errors = $model->getFirstErrors();
+            $errorMessage = !empty($errors) ? implode(', ', $errors) : 'Failed to create category.';
+            Yii::$app->session->setFlash('error', $errorMessage);
+        }
+
+        return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'categories-section']);
+    }
+
+    /**
+     * Updates an existing category from profile page.
+     * @param int $id
+     * @return Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionCategoryUpdate($id)
+    {
+        if (!Yii::$app->user->identity->isAuthor()) {
+            throw new NotFoundHttpException('Only authors can update categories.');
+        }
+
+        $model = Category::findOne($id);
+        if ($model === null) {
+            throw new NotFoundHttpException('Category not found.');
+        }
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Category updated successfully.');
+        } else {
+            $errors = $model->getFirstErrors();
+            $errorMessage = !empty($errors) ? implode(', ', $errors) : 'Failed to update category.';
+            Yii::$app->session->setFlash('error', $errorMessage);
+        }
+
+        return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'categories-section']);
+    }
+
+    /**
+     * Deletes an existing category from profile page.
+     * @param int $id
+     * @return Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionCategoryDelete($id)
+    {
+        if (!Yii::$app->user->identity->isAuthor()) {
+            throw new NotFoundHttpException('Only authors can delete categories.');
+        }
+
+        $model = Category::findOne($id);
+        if ($model === null) {
+            throw new NotFoundHttpException('Category not found.');
+        }
+
+        // Перевіряємо, чи є статті в цій категорії
+        if ($model->getArticlesCount() > 0) {
+            Yii::$app->session->setFlash('error', 'Cannot delete category with articles. Please remove or reassign articles first.');
+        } else {
+            $model->delete();
+            Yii::$app->session->setFlash('success', 'Category deleted successfully.');
+        }
+
+        return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'categories-section']);
     }
 }
 

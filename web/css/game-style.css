@@ -261,6 +261,34 @@ a:focus {
   color: white;
 }
 
+.btn-outline-warning {
+  background-color: transparent;
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.btn-outline-warning:hover {
+  background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+  border-color: var(--warning);
+  color: white;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-outline-danger {
+  background-color: transparent;
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.btn-outline-danger:hover {
+  background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%);
+  border-color: var(--error);
+  color: white;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+  transform: translateY(-2px);
+}
+
 /* ============================================
    CARDS
    ============================================ */
