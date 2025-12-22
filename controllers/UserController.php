@@ -30,7 +30,7 @@ class UserController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['profile', 'update', 'category-create', 'category-update', 'category-delete'],
+                        'actions' => ['profile', 'update', 'category-create', 'category-update', 'category-delete', 'tag-create', 'tag-update', 'tag-delete'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -176,6 +176,85 @@ class UserController extends Controller
         }
 
         return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'categories-section']);
+    }
+
+    /**
+     * Creates a new tag from profile page.
+     * @return Response
+     */
+    public function actionTagCreate()
+    {
+        if (!Yii::$app->user->identity->isAuthor()) {
+            throw new NotFoundHttpException('Only authors can create tags.');
+        }
+
+        $model = new Tag();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Tag created successfully.');
+        } else {
+            $errors = $model->getFirstErrors();
+            $errorMessage = !empty($errors) ? implode(', ', $errors) : 'Failed to create tag.';
+            Yii::$app->session->setFlash('error', $errorMessage);
+        }
+
+        return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'tags-section']);
+    }
+
+    /**
+     * Updates an existing tag from profile page.
+     * @param int $id
+     * @return Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionTagUpdate($id)
+    {
+        if (!Yii::$app->user->identity->isAuthor()) {
+            throw new NotFoundHttpException('Only authors can update tags.');
+        }
+
+        $model = Tag::findOne($id);
+        if ($model === null) {
+            throw new NotFoundHttpException('Tag not found.');
+        }
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Tag updated successfully.');
+        } else {
+            $errors = $model->getFirstErrors();
+            $errorMessage = !empty($errors) ? implode(', ', $errors) : 'Failed to update tag.';
+            Yii::$app->session->setFlash('error', $errorMessage);
+        }
+
+        return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'tags-section']);
+    }
+
+    /**
+     * Deletes an existing tag from profile page.
+     * @param int $id
+     * @return Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionTagDelete($id)
+    {
+        if (!Yii::$app->user->identity->isAuthor()) {
+            throw new NotFoundHttpException('Only authors can delete tags.');
+        }
+
+        $model = Tag::findOne($id);
+        if ($model === null) {
+            throw new NotFoundHttpException('Tag not found.');
+        }
+
+        // Перевіряємо, чи є статті з цим тегом
+        if ($model->getArticlesCount() > 0) {
+            Yii::$app->session->setFlash('error', 'Cannot delete tag with articles. Please remove tag from articles first.');
+        } else {
+            $model->delete();
+            Yii::$app->session->setFlash('success', 'Tag deleted successfully.');
+        }
+
+        return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'tags-section']);
     }
 }
 

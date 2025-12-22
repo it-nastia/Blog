@@ -243,13 +243,137 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
 
                 <!-- Секция Теги -->
                 <div id="tags-section" class="profile-section" style="display: none;">
-                    <h2>Tags</h2>
-                    <div class="card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2>Tags</h2>
+                        <button type="button" class="btn btn-success" onclick="toggleTagForm()">
+                            <i class="bi bi-plus-circle"></i> Create Tag
+                        </button>
+                    </div>
+
+                    <!-- Форма создания тега -->
+                    <div id="tag-create-form" class="card mb-4" style="display: none;">
+                        <div class="card-header">
+                            <h5 class="mb-0">Create New Tag</h5>
+                        </div>
                         <div class="card-body">
-                            <p>Tags management section. Content will be added later.</p>
-                            <p class="text-muted">Here you will be able to manage all tags.</p>
+                            <?php
+                            $createTagModel = new \app\models\Tag();
+                            $form = ActiveForm::begin([
+                                'action' => ['user/tag-create'],
+                                'method' => 'post',
+                                'id' => 'tag-create-form-element'
+                            ]);
+                            ?>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <?= $form->field($createTagModel, 'name')->textInput(['maxlength' => true]) ?>
+                                </div>
+                                <div class="col-md-6">
+                                    <?= $form->field($createTagModel, 'slug')->textInput(['maxlength' => true])
+                                        ->hint('Leave empty to auto-generate from name') ?>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <?= Html::submitButton('Create Tag', ['class' => 'btn btn-success']) ?>
+                                <?= Html::button('Cancel', ['class' => 'btn btn-secondary', 'onclick' => 'toggleTagForm()']) ?>
+                            </div>
+                            
+                            <?php ActiveForm::end(); ?>
                         </div>
                     </div>
+                    
+                    <?php
+                    $tags = \app\models\Tag::find()->orderBy(['name' => SORT_ASC])->all();
+                    ?>
+                    
+                    <?php if (empty($tags)): ?>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <p class="text-muted mb-0">No tags yet. Create your first tag!</p>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Slug</th>
+                                        <th>Articles</th>
+                                        <th>Created At</th>
+                                        <th style="width: 200px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($tags as $tag): ?>
+                                        <tr id="tag-row-<?= $tag->id ?>">
+                                            <td id="tag-name-<?= $tag->id ?>"><?= Html::encode($tag->name) ?></td>
+                                            <td id="tag-slug-<?= $tag->id ?>"><code><?= Html::encode($tag->slug) ?></code></td>
+                                            <td>
+                                                <span class="badge bg-info"><?= $tag->getArticlesCount() ?></span>
+                                            </td>
+                                            <td>
+                                                <?= date('Y-m-d H:i', $tag->created_at) ?>
+                                            </td>
+                                            <td>
+                                                <div id="tag-actions-<?= $tag->id ?>" class="d-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-warning" 
+                                                            onclick="showTagEditForm(<?= $tag->id ?>)"
+                                                            title="Edit Tag">
+                                                        <i class="bi bi-pencil"></i> Edit
+                                                    </button>
+                                                    <?= Html::a('<i class="bi bi-trash"></i> Delete', ['user/tag-delete', 'id' => $tag->id], [
+                                                        'class' => 'btn btn-sm btn-danger',
+                                                        'title' => 'Delete Tag',
+                                                        'data' => [
+                                                            'confirm' => 'Are you sure you want to delete this tag?',
+                                                            'method' => 'post',
+                                                        ],
+                                                    ]) ?>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- Форма редактирования (скрыта, под строкой) -->
+                                        <tr id="tag-edit-form-row-<?= $tag->id ?>" style="display: none;">
+                                            <td colspan="5">
+                                                <div class="card mt-2 mb-2">
+                                                    <div class="card-header">
+                                                        <h6 class="mb-0">Edit Tag: <?= Html::encode($tag->name) ?></h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <?php
+                                                        $editTag = \app\models\Tag::findOne($tag->id);
+                                                        $editForm = ActiveForm::begin([
+                                                            'action' => ['user/tag-update', 'id' => $tag->id],
+                                                            'method' => 'post',
+                                                            'options' => ['class' => 'tag-edit-form']
+                                                        ]);
+                                                        ?>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <?= $editForm->field($editTag, 'name')->textInput(['maxlength' => true]) ?>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <?= $editForm->field($editTag, 'slug')->textInput(['maxlength' => true])
+                                                                    ->hint('Leave empty to auto-generate from name') ?>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <?= Html::submitButton('Save Changes', ['class' => 'btn btn-success']) ?>
+                                                            <?= Html::button('Cancel', ['class' => 'btn btn-secondary', 'onclick' => 'hideTagEditForm(' . $tag->id . ')']) ?>
+                                                        </div>
+                                                        <?php ActiveForm::end(); ?>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Секция Комментарии -->
@@ -338,7 +462,7 @@ function showEditForm(categoryId) {
     
     // Показуємо дії для всіх категорій
     document.querySelectorAll('[id^="category-actions-"]').forEach(function(actions) {
-        actions.style.display = 'block';
+        actions.style.display = 'flex';
     });
     
     // Приховуємо дії для поточної категорії
@@ -352,5 +476,40 @@ function showEditForm(categoryId) {
 function hideEditForm(categoryId) {
     document.getElementById('category-edit-form-row-' + categoryId).style.display = 'none';
     document.getElementById('category-actions-' + categoryId).style.display = 'block';
+}
+
+// Показ/приховування форми створення тега
+function toggleTagForm() {
+    const form = document.getElementById('tag-create-form');
+    if (form.style.display === 'none') {
+        form.style.display = 'block';
+    } else {
+        form.style.display = 'none';
+    }
+}
+
+// Показ форми редагування тега
+function showTagEditForm(tagId) {
+    // Приховуємо всі інші форми редагування
+    document.querySelectorAll('[id^="tag-edit-form-row-"]').forEach(function(form) {
+        form.style.display = 'none';
+    });
+    
+    // Показуємо дії для всіх тегів
+    document.querySelectorAll('[id^="tag-actions-"]').forEach(function(actions) {
+        actions.style.display = 'flex';
+    });
+    
+    // Приховуємо дії для поточного тега
+    document.getElementById('tag-actions-' + tagId).style.display = 'none';
+    
+    // Показуємо форму редагування (рядок після поточного)
+    document.getElementById('tag-edit-form-row-' + tagId).style.display = 'table-row';
+}
+
+// Приховування форми редагування тега
+function hideTagEditForm(tagId) {
+    document.getElementById('tag-edit-form-row-' + tagId).style.display = 'none';
+    document.getElementById('tag-actions-' + tagId).style.display = 'flex';
 }
 </script>

@@ -46,12 +46,13 @@ class Category extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'slug'], 'required'],
+            [['name'], 'required'],
+            [['slug'], 'string', 'max' => 255],
             [['description'], 'string'],
             [['created_at', 'updated_at'], 'integer'],
-            [['name', 'slug', 'image'], 'string', 'max' => 255],
+            [['name', 'image'], 'string', 'max' => 255],
             [['name'], 'unique'],
-            [['slug'], 'unique'],
+            [['slug'], 'unique', 'skipOnEmpty' => true],
         ];
     }
 
@@ -78,7 +79,8 @@ class Category extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            if (empty($this->slug)) {
+            // Генеруємо slug, якщо він порожній або містить тільки пробіли
+            if (empty(trim($this->slug ?? ''))) {
                 $this->slug = Inflector::slug($this->name);
             }
             return true;
