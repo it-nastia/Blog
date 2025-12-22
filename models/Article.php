@@ -58,12 +58,13 @@ class Article extends ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'slug', 'content', 'category_id', 'author_id'], 'required'],
+            [['title', 'content', 'category_id', 'author_id'], 'required'],
             [['content'], 'string'],
             [['category_id', 'author_id', 'views', 'created_at', 'updated_at'], 'integer'],
-            [['title', 'slug', 'image'], 'string', 'max' => 255],
+            [['title', 'image'], 'string', 'max' => 255],
+            [['slug'], 'string', 'max' => 255],
             [['status'], 'string'],
-            [['slug'], 'unique'],
+            [['slug'], 'unique', 'skipOnEmpty' => true],
             [['status'], 'in', 'range' => [self::STATUS_DRAFT, self::STATUS_PUBLISHED]],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
             [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['author_id' => 'id']],
@@ -99,7 +100,7 @@ class Article extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            if (empty($this->slug)) {
+            if (empty(trim($this->slug))) {
                 $this->slug = Inflector::slug($this->title);
             }
             return true;

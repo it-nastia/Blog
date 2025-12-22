@@ -30,7 +30,7 @@ class UserController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['profile', 'update', 'category-create', 'category-update', 'category-delete', 'tag-create', 'tag-update', 'tag-delete'],
+                        'actions' => ['profile', 'update', 'category-create', 'category-update', 'category-delete', 'tag-create', 'tag-update', 'tag-delete', 'article-create', 'article-update', 'article-delete'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -255,6 +255,128 @@ class UserController extends Controller
         }
 
         return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'tags-section']);
+    }
+
+    /**
+     * Creates a new article from profile page.
+     * @return Response
+     */
+    public function actionArticleCreate()
+    {
+        if (!Yii::$app->user->identity->isAuthor()) {
+            throw new NotFoundHttpException('Only authors can create articles.');
+        }
+
+        $model = new Article();
+        $model->author_id = Yii::$app->user->id;
+        $model->status = Article::STATUS_DRAFT;
+
+        if ($model->load(Yii::$app->request->post())) {
+            // Обробка тегів
+            $tagIds = Yii::$app->request->post('Article')['tagIds'] ?? [];
+            
+            if ($model->save()) {
+                // Зберігаємо теги
+                $model->unlinkAll('tags', true);
+                if (!empty($tagIds)) {
+                    foreach ($tagIds as $tagId) {
+                        $tag = Tag::findOne($tagId);
+                        if ($tag) {
+                            $model->link('tags', $tag);
+                        }
+                    }
+                }
+                Yii::$app->session->setFlash('success', 'Article created successfully.');
+            } else {
+                $errors = $model->getFirstErrors();
+                $errorMessage = !empty($errors) ? implode(', ', $errors) : 'Failed to create article.';
+                Yii::$app->session->setFlash('error', $errorMessage);
+            }
+        } else {
+            $errors = $model->getFirstErrors();
+            if (!empty($errors)) {
+                $errorMessage = implode(', ', $errors);
+                Yii::$app->session->setFlash('error', $errorMessage);
+            }
+        }
+
+        return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'articles-section']);
+    }
+
+    /**
+     * Updates an existing article from profile page.
+     * @param int $id
+     * @return Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionArticleUpdate($id)
+    {
+        if (!Yii::$app->user->identity->isAuthor()) {
+            throw new NotFoundHttpException('Only authors can update articles.');
+        }
+
+        $model = Article::findOne($id);
+        if ($model === null) {
+            throw new NotFoundHttpException('Article not found.');
+        }
+
+        // Перевіряємо, чи є користувач автором статті
+        if ($model->author_id !== Yii::$app->user->id) {
+            throw new NotFoundHttpException('You do not have permission to update this article.');
+        }
+
+        if ($model->load(Yii::$app->request->post())) {
+            // Обробка тегів
+            $tagIds = Yii::$app->request->post('Article')['tagIds'] ?? [];
+            
+            if ($model->save()) {
+                // Зберігаємо теги
+                $model->unlinkAll('tags', true);
+                if (!empty($tagIds)) {
+                    foreach ($tagIds as $tagId) {
+                        $tag = Tag::findOne($tagId);
+                        if ($tag) {
+                            $model->link('tags', $tag);
+                        }
+                    }
+                }
+                Yii::$app->session->setFlash('success', 'Article updated successfully.');
+            } else {
+                $errors = $model->getFirstErrors();
+                $errorMessage = !empty($errors) ? implode(', ', $errors) : 'Failed to update article.';
+                Yii::$app->session->setFlash('error', $errorMessage);
+            }
+        }
+
+        return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'articles-section']);
+    }
+
+    /**
+     * Deletes an existing article from profile page.
+     * @param int $id
+     * @return Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionArticleDelete($id)
+    {
+        if (!Yii::$app->user->identity->isAuthor()) {
+            throw new NotFoundHttpException('Only authors can delete articles.');
+        }
+
+        $model = Article::findOne($id);
+        if ($model === null) {
+            throw new NotFoundHttpException('Article not found.');
+        }
+
+        // Перевіряємо, чи є користувач автором статті
+        if ($model->author_id !== Yii::$app->user->id) {
+            throw new NotFoundHttpException('You do not have permission to delete this article.');
+        }
+
+        $model->delete();
+        Yii::$app->session->setFlash('success', 'Article deleted successfully.');
+
+        return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'articles-section']);
     }
 }
 
