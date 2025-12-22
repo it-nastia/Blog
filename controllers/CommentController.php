@@ -28,7 +28,7 @@ class CommentController extends Controller
                     [
                         'allow' => true,
                         'actions' => ['create'],
-                        'roles' => ['@'], // Только авторизованным
+                        'roles' => ['@'], // Тільки авторизованим
                     ],
                 ],
             ],
@@ -51,23 +51,23 @@ class CommentController extends Controller
         $model = new Comment();
 
         if ($model->load(Yii::$app->request->post())) {
-            // Проверяем, что статья существует
+            // Перевіряємо, що стаття існує
             $article = Article::findOne($model->article_id);
             if (!$article) {
                 throw new NotFoundHttpException('Article not found.');
             }
 
-            // Устанавливаем пользователя, если не установлен
+            // Встановлюємо користувача, якщо не встановлено
             if (empty($model->user_id)) {
                 $model->user_id = Yii::$app->user->id;
             }
 
-            // Проверяем, что пользователь может комментировать
+            // Перевіряємо, що користувач може коментувати
             if ($model->user_id != Yii::$app->user->id) {
                 throw new NotFoundHttpException('You do not have permission to create this comment.');
             }
 
-            // Если есть parent_id, проверяем что родительский комментарий существует
+            // Якщо є parent_id, перевіряємо що батьківський коментар існує
             if ($model->parent_id) {
                 $parent = Comment::findOne($model->parent_id);
                 if (!$parent || $parent->article_id != $model->article_id) {
@@ -76,7 +76,7 @@ class CommentController extends Controller
                 }
             }
 
-            // Устанавливаем статус: для авторов - сразу одобрен, для читателей - на модерации
+            // Встановлюємо статус: для авторів - одразу схвалено, для читачів - на модерації
             $user = Yii::$app->user->identity;
             if ($user->isAuthor()) {
                 $model->status = Comment::STATUS_APPROVED;
@@ -97,7 +97,7 @@ class CommentController extends Controller
             Yii::$app->session->setFlash('error', 'Invalid comment data.');
         }
 
-        // Перенаправляем обратно на статью
+        // Перенаправляємо назад на статтю
         $article = Article::findOne($model->article_id);
         return $this->redirect(['article/view', 'slug' => $article->slug]);
     }

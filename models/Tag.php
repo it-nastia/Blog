@@ -35,7 +35,7 @@ class Tag extends ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'updatedAtAttribute' => false, // Отключаем updated_at, т.к. его нет в таблице
+                'updatedAtAttribute' => false, // Вимікаємо updated_at, т.к. його немає в таблиці
             ],
         ];
     }
@@ -68,8 +68,8 @@ class Tag extends ActiveRecord
     }
 
     /**
-     * Генерирует slug из названия тега
-     * Вызывается перед сохранением, если slug не указан
+     * Генерує slug з назви тега
+     * Викликається перед збереженням, якщо slug не вказаний
      */
     public function beforeSave($insert)
     {
@@ -83,7 +83,7 @@ class Tag extends ActiveRecord
     }
 
     /**
-     * Связь many-to-many с таблицей articles через article_tag
+     * Зв'язок many-to-many з таблицею articles через article_tag
      * @return \yii\db\ActiveQuery
      */
     public function getArticles()
@@ -93,7 +93,7 @@ class Tag extends ActiveRecord
     }
 
     /**
-     * Получить количество статей с этим тегом
+     * Отримати кількість статей з цим тегом
      * @return int
      */
     public function getArticlesCount()

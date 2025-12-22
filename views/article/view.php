@@ -37,7 +37,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?php endforeach; ?>
             </div>
 
-            <!-- Кнопки действий для автора -->
+            <!-- Кнопки дій для автора -->
             <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity->isAuthor() && $model->author_id == Yii::$app->user->id): ?>
                 <div class="mb-3">
                     <?= Html::a('Edit', ['update', 'id' => $model->id], ['class' => 'btn btn-warning btn-sm']) ?>
@@ -52,19 +52,19 @@ $this->params['breadcrumbs'][] = $this->title;
             <?php endif; ?>
         </header>
 
-        <!-- Изображение -->
+        <!-- Зображення -->
         <?php if ($model->image): ?>
             <div class="mb-4">
                 <img src="<?= Html::encode($model->image) ?>" class="img-fluid rounded" alt="<?= Html::encode($model->title) ?>">
             </div>
         <?php endif; ?>
 
-        <!-- Содержимое статьи -->
+        <!-- Зміст статті -->
         <div class="article-content">
             <?= nl2br(Html::encode($model->content)) ?>
         </div>
 
-        <!-- Кнопки социальных сетей -->
+        <!-- Кнопки соціальних мереж -->
         <div class="mt-4 pt-4 border-top">
             <h5>Share this article:</h5>
             <div class="social-share">
@@ -88,12 +88,12 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </article>
 
-    <!-- Комментарии -->
+    <!-- Коментарі -->
     <div class="comments-section mt-5">
         <h3>Comments (<?= $model->getCommentsCount() ?>)</h3>
         
         <?php if (!Yii::$app->user->isGuest): ?>
-            <!-- Форма добавления комментария -->
+            <!-- Форма додавання коментаря -->
             <div class="card mb-4">
                 <div class="card-body">
                     <h5>Add Comment</h5>
@@ -123,7 +123,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
         <?php endif; ?>
 
-        <!-- Список комментариев -->
+        <!-- Список коментарів -->
         <div class="comments-list">
             <?php
             $rootComments = Comment::findRootComments($model->id)->all();

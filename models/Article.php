@@ -30,7 +30,7 @@ use yii\helpers\StringHelper;
  */
 class Article extends ActiveRecord
 {
-    // Константы для статусов
+    // Константи для статусів
     const STATUS_DRAFT = 'draft';
     const STATUS_PUBLISHED = 'published';
 
@@ -93,8 +93,8 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Генерирует slug из заголовка статьи
-     * Вызывается перед сохранением, если slug не указан
+     * Генерує slug з заголовка статті
+     * Викликається перед збереженням, якщо slug не вказаний
      */
     public function beforeSave($insert)
     {
@@ -108,7 +108,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Связь с категорией (1-N)
+     * Зв'язок з категорією (1-N)
      * @return \yii\db\ActiveQuery
      */
     public function getCategory()
@@ -117,7 +117,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Связь с автором (1-N)
+     * Зв'язок з автором (1-N)
      * @return \yii\db\ActiveQuery
      */
     public function getAuthor()
@@ -126,7 +126,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Связь many-to-many с тегами через article_tag
+     * Зв'язок many-to-many з тегами через article_tag
      * @return \yii\db\ActiveQuery
      */
     public function getTags()
@@ -136,7 +136,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Связь с комментариями (1-N)
+     * Зв'язок з коментарями (1-N)
      * @return \yii\db\ActiveQuery
      */
     public function getComments()
@@ -147,7 +147,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Получить все комментарии (включая неодобренные)
+     * Отримати всі коментари (включаючи неодобренні)
      * @return \yii\db\ActiveQuery
      */
     public function getAllComments()
@@ -157,7 +157,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Получить количество комментариев
+     * Отримати кількість коментарів
      * @return int
      */
     public function getCommentsCount()
@@ -166,7 +166,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Увеличить счетчик просмотров
+     * Збільшити лічильник переглядів
      */
     public function incrementViews()
     {
@@ -174,7 +174,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Получить краткое описание статьи (первые N символов)
+     * Отримати коротке опис статті (перші N символів)
      * @param int $length
      * @return string
      */
@@ -184,7 +184,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Проверяет, опубликована ли статья
+     * Перевіряє, чи є стаття опублікована
      * @return bool
      */
     public function isPublished()
@@ -193,7 +193,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Проверяет, является ли статья черновиком
+     * Перевіряє, чи є стаття чернетка
      * @return bool
      */
     public function isDraft()
@@ -202,7 +202,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Получить опубликованные статьи
+     * Отримати опубліковані статті
      * @return \yii\db\ActiveQuery
      */
     public static function findPublished()
@@ -211,7 +211,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Получить статьи по категории
+     * Отримати статті по категорії
      * @param int $categoryId
      * @return \yii\db\ActiveQuery
      */
@@ -221,7 +221,7 @@ class Article extends ActiveRecord
     }
 
     /**
-     * Получить статьи по тегу
+     * Отримати статті по тегу
      * @param int $tagId
      * @return \yii\db\ActiveQuery
      */

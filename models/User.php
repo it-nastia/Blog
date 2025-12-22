@@ -23,11 +23,11 @@ use yii\behaviors\TimestampBehavior;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-    // Константы для ролей
+    // Константи для ролей
     const ROLE_AUTHOR = 'author';
     const ROLE_READER = 'reader';
 
-    // Константы для статусов
+    // Константи для статусів
     const STATUS_INACTIVE = 0;
     const STATUS_ACTIVE = 1;
 
@@ -55,18 +55,27 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'email', 'password_hash'], 'required'],
+            [['username', 'email'], 'required'],
+            [['password_hash'], 'required', 'on' => 'signup'], // Тільки при реєстрації
             [['role'], 'string'],
             [['status', 'created_at', 'updated_at'], 'integer'],
             [['username', 'email', 'avatar'], 'string', 'max' => 255],
             [['password_hash'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 32],
-            [['username'], 'unique'],
-            [['email'], 'unique'],
+            [['username'], 'unique', 'filter' => function($query) {
+                if (!$this->isNewRecord) {
+                    $query->andWhere(['!=', 'id', $this->id]);
+                }
+            }],
+            [['email'], 'unique', 'filter' => function($query) {
+                if (!$this->isNewRecord) {
+                    $query->andWhere(['!=', 'id', $this->id]);
+                }
+            }],
             [['email'], 'email'],
             [['role'], 'in', 'range' => [self::ROLE_AUTHOR, self::ROLE_READER]],
             [['status'], 'in', 'range' => [self::STATUS_INACTIVE, self::STATUS_ACTIVE]],
-            [['avatar'], 'url', 'defaultScheme' => 'http'],
+            [['avatar'], 'url', 'defaultScheme' => 'http', 'skipOnEmpty' => true],
         ];
     }
 
@@ -170,7 +179,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Проверяет, является ли пользователь автором
+     * Перевіряє, чи є користувач автором
      *
      * @return bool
      */
@@ -180,7 +189,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Проверяет, является ли пользователь читателем
+     * Перевіряє, чи є користувач читачем
      *
      * @return bool
      */
@@ -190,7 +199,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Получить URL аватара пользователя или дефолтное изображение
+     * Отримати URL аватара користувача або дефолтне зображення
      * @param string $defaultUrl URL дефолтного аватара
      * @return string
      */
@@ -200,11 +209,39 @@ class User extends ActiveRecord implements IdentityInterface
             return $this->avatar;
         }
         
-        // Если не указан дефолтный URL, используем стандартный аватар
+        // Якщо не вказано дефолтний URL, генеруємо аватар з ініціалом
         if ($defaultUrl === null) {
-            return 'https://www.shutterstock.com/ru/search/blank-avatar-icon' . urlencode(strtoupper(substr($this->username, 0, 1)));
+            // Використовуємо UI Avatars API для генерації аватара з першої літери імені
+            $initial = strtoupper(substr($this->username, 0, 1));
+            $backgroundColor = $this->getAvatarColor();
+            $textColor = '#ffffff';
+            
+            return "https://ui-avatars.com/api/?name={$initial}&background={$backgroundColor}&color={$textColor}&size=150&bold=true&font-size=0.6";
         }
         
         return $defaultUrl; 
+    }
+
+    /**
+     * Отримати колір фону для аватара на основі імені користувача
+     * @return string Hex колір без #
+     */
+    private function getAvatarColor()
+    {
+        // Генеруємо колір на основі імені користувача для консистентності
+        $colors = [
+            '4a90e2', // Синій
+            '50c878', // Зелений
+            'f39c12', // Помаранчевий
+            'e74c3c', // Червоний
+            '9b59b6', // Фіолетовий
+            '1abc9c', // Бірюзовий
+            '34495e', // Темно-синій
+            'e67e22', // Темно-помаранчевий
+        ];
+        
+        // Вибираємо колір на основі хешу імені користувача
+        $index = crc32($this->username) % count($colors);
+        return $colors[$index];
     }
 }

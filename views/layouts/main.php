@@ -6,7 +6,6 @@
 use app\assets\AppAsset;
 use app\widgets\Alert;
 use app\models\Category;
-use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
@@ -20,6 +19,10 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 $this->registerMetaTag(['name' => 'description', 'content' => $this->params['meta_description'] ?? '']);
 $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_keywords'] ?? '']);
 $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
+// Google Fonts - Montserrat
+$this->registerLinkTag(['rel' => 'preconnect', 'href' => 'https://fonts.googleapis.com']);
+$this->registerLinkTag(['rel' => 'preconnect', 'href' => 'https://fonts.gstatic.com', 'crossorigin' => '']);
+$this->registerLinkTag(['rel' => 'stylesheet', 'href' => 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap']);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -33,7 +36,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 
 <header id="header">
     <?php
-    // Получаем категории для выпадающего меню
+    // Отримуємо категорії для випадаючого меню
     try {
         $categories = Category::find()->orderBy(['name' => SORT_ASC])->all();
     } catch (\Exception $e) {
@@ -51,15 +54,15 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     NavBar::begin([
         'brandLabel' => 'MovieBlog',
         'brandUrl' => Yii::$app->homeUrl,
-        'options' => ['class' => 'navbar-expand-lg navbar-dark bg-dark']
+        'options' => ['class' => 'navbar-expand-lg navbar-dark']
     ]);
     
-    // Основное навигационное меню
+    // Основне навігаційне меню
     $navItems = [
         ['label' => 'Home', 'url' => ['/article/index']],
     ];
     
-    // Выпадающее меню "Категории"
+    // Випадаюче меню "Категорії"
     if (!empty($categoryItems)) {
         $navItems[] = [
             'label' => 'Categories',
@@ -68,7 +71,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         ];
     }
     
-    // Ссылка "О блоге"
+    // Посилання "Про блог"
     $navItems[] = ['label' => 'About', 'url' => ['/site/about']];
     
     echo Nav::widget([
@@ -76,7 +79,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         'items' => $navItems
     ]);
     
-    // Форма поиска
+    // Форма пошуку
     $searchForm = ActiveForm::begin([
         'action' => ['/article/index'],
         'method' => 'get',
@@ -92,19 +95,22 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     echo Html::submitButton('Search', ['class' => 'btn btn-outline-light']);
     ActiveForm::end();
     
-    // Блок пользователя (справа)
+    // Блок користувача (справа)
     if (Yii::$app->user->isGuest) {
-        // Для неавторизованных пользователей
+        // Для неавторизованих користувачів
         echo Html::a('Login', ['/site/login'], ['class' => 'btn btn-outline-light me-2']);
         echo Html::a('Register', ['/site/register'], ['class' => 'btn btn-primary']);
     } else {
-        // Для авторизованных пользователей - просто ссылка на профиль
+        // Для авторизованих користувачів
         $user = Yii::$app->user->identity;
         echo Html::a(
             Html::encode($user->username),
             ['/user/profile', 'id' => $user->id],
-            ['class' => 'btn btn-outline-light']
+            ['class' => 'btn btn-outline-light me-2']
         );
+        echo Html::beginForm(['/site/logout'], 'post', ['class' => 'd-inline'])
+            . Html::submitButton('Logout', ['class' => 'btn btn-outline-light'])
+            . Html::endForm();
     }
     
     NavBar::end();
@@ -113,18 +119,15 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 
 <main id="main" class="flex-shrink-0" role="main">
     <div class="container">
-        <?php if (!empty($this->params['breadcrumbs'])): ?>
-            <?= Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]) ?>
-        <?php endif ?>
         <?= Alert::widget() ?>
         <?= $content ?>
     </div>
 </main>
 
-<footer id="footer" class="mt-auto py-3 bg-light">
+<footer id="footer" class="mt-auto py-3">
     <div class="container">
         <div class="row text-muted">
-            <div class="col-md-6 text-center text-md-start">&copy; My Company <?= date('Y') ?></div>
+            <div class="col-md-6 text-center text-md-start">&copy; MovieBlog <?= date('Y') ?></div>
             <div class="col-md-6 text-center text-md-end"><?= Yii::powered() ?></div>
         </div>
     </div>

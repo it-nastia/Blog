@@ -70,8 +70,8 @@ class Category extends ActiveRecord
     }
 
     /**
-     * Генерирует slug из названия категории
-     * Вызывается перед сохранением, если slug не указан
+     * Генерує slug з назви категорії
+     * Викликається перед збереженням, якщо slug не вказаний
      */
     public function beforeSave($insert)
     {
@@ -85,7 +85,7 @@ class Category extends ActiveRecord
     }
 
     /**
-     * Связь с таблицей articles
+     * Зв'язок з таблицею articles
      * @return \yii\db\ActiveQuery
      */
     public function getArticles()
@@ -94,7 +94,7 @@ class Category extends ActiveRecord
     }
 
     /**
-     * Получить количество статей в категории
+     * Отримати кількість статей в категорії
      * @return int
      */
     public function getArticlesCount()

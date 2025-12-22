@@ -7,7 +7,7 @@
 use yii\helpers\Html;
 use app\models\Comment;
 
-$marginLeft = $level * 30; // Отступ для вложенных комментариев
+$marginLeft = $level * 30; // Відступ для вкладених коментарів
 ?>
 
 <div class="comment mb-3" style="margin-left: <?= $marginLeft ?>px;">
@@ -34,7 +34,7 @@ $marginLeft = $level * 30; // Отступ для вложенных комме�
         </div>
     </div>
 
-    <!-- Форма ответа (скрыта по умолчанию) -->
+    <!-- Форма відповіді (скрита за замовчуванням) -->
     <?php if (!Yii::$app->user->isGuest && $level < 3): ?>
         <div class="reply-form mt-2" id="reply-form-<?= $comment->id ?>" style="display: none; margin-left: 20px;">
             <div class="card">
@@ -67,7 +67,7 @@ $marginLeft = $level * 30; // Отступ для вложенных комме�
         </div>
     <?php endif; ?>
 
-    <!-- Вложенные комментарии (ответы) -->
+    <!-- Вкладені комментарі (відповіді) -->
     <?php
     $replies = $comment->getReplies()->all();
     if (!empty($replies)):
@@ -79,7 +79,7 @@ $marginLeft = $level * 30; // Отступ для вложенных комме�
 </div>
 
 <script>
-// Простой JavaScript для показа/скрытия формы ответа
+// Код для показу/скриття форми відповіді
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.reply-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {

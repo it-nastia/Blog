@@ -30,14 +30,14 @@ class ArticleController extends Controller
                     [
                         'allow' => true,
                         'actions' => ['index', 'view'],
-                        'roles' => ['?', '@'], // Доступно всем (гостям и авторизованным)
+                        'roles' => ['?', '@'], // Доступно всім (гостям та авторизованим)
                     ],
                     [
                         'allow' => true,
                         'actions' => ['create', 'update', 'delete'],
-                        'roles' => ['@'], // Только авторизованным
+                        'roles' => ['@'], // Тільки авторизованим
                         'matchCallback' => function ($rule, $action) {
-                            // Проверяем, является ли пользователь автором
+                            // Перевіряємо, чи є користувач автором
                             return !Yii::$app->user->isGuest && 
                                    Yii::$app->user->identity->isAuthor();
                         },
@@ -67,19 +67,19 @@ class ArticleController extends Controller
             ->with(['category', 'author', 'tags'])
             ->orderBy(['created_at' => SORT_DESC]);
 
-        // Фильтрация по категории
+        // Фільтрація за категорією
         if ($categoryId) {
             $query->andWhere(['category_id' => $categoryId]);
         }
 
-        // Фильтрация по тегу
+        // Фільтрація за тегом
         if ($tagId) {
             $query = Article::findByTag($tagId)
                 ->with(['category', 'author', 'tags'])
                 ->orderBy(['created_at' => SORT_DESC]);
         }
 
-        // Поиск по заголовку и содержимому
+        // Пошук за заголовком та вмістом
         if ($search) {
             $query->andWhere(['or',
                 ['like', 'title', $search],
@@ -94,7 +94,7 @@ class ArticleController extends Controller
             ],
         ]);
 
-        // Получаем категории для фильтра
+        // Отримуємо категорії для фільтра
         try {
             $categories = Category::find()->orderBy(['name' => SORT_ASC])->all();
         } catch (\Exception $e) {
@@ -128,7 +128,7 @@ class ArticleController extends Controller
             throw new NotFoundHttpException('The requested article does not exist.');
         }
 
-        // Увеличиваем счетчик просмотров
+        // Збільшуємо лічильник переглядів
         $model->incrementViews();
 
         return $this->render('view', [
@@ -145,14 +145,14 @@ class ArticleController extends Controller
     {
         $model = new Article();
         $model->author_id = Yii::$app->user->id;
-        $model->status = Article::STATUS_DRAFT; // По умолчанию черновик
+        $model->status = Article::STATUS_DRAFT; // За замовчуванням чернетка
 
         if ($model->load(Yii::$app->request->post())) {
-            // Обработка тегов
+            // Обробка тегів
             $tagIds = Yii::$app->request->post('Article')['tagIds'] ?? [];
             
             if ($model->save()) {
-                // Сохраняем теги
+                // Зберігаємо теги
                 $model->unlinkAll('tags', true);
                 if (!empty($tagIds)) {
                     foreach ($tagIds as $tagId) {
@@ -189,17 +189,17 @@ class ArticleController extends Controller
     {
         $model = $this->findModel($id);
 
-        // Проверяем, что пользователь является автором статьи
+        // Перевіряємо, чи є користувач автором статті
         if ($model->author_id !== Yii::$app->user->id) {
             throw new NotFoundHttpException('You do not have permission to update this article.');
         }
 
         if ($model->load(Yii::$app->request->post())) {
-            // Обработка тегов
+            // Обробка тегів
             $tagIds = Yii::$app->request->post('Article')['tagIds'] ?? [];
             
             if ($model->save()) {
-                // Сохраняем теги
+                // Зберігаємо теги
                 $model->unlinkAll('tags', true);
                 if (!empty($tagIds)) {
                     foreach ($tagIds as $tagId) {
@@ -218,7 +218,7 @@ class ArticleController extends Controller
         $categories = ArrayHelper::map(Category::find()->all(), 'id', 'name');
         $tags = Tag::find()->orderBy(['name' => SORT_ASC])->all();
         
-        // Получаем текущие теги статьи
+        // Отримуємо поточні теги статті
         $selectedTagIds = ArrayHelper::getColumn($model->tags, 'id');
 
         return $this->render('update', [
@@ -240,7 +240,7 @@ class ArticleController extends Controller
     {
         $model = $this->findModel($id);
 
-        // Проверяем, что пользователь является автором статьи
+        // Перевіряємо, чи є користувач автором статті
         if ($model->author_id !== Yii::$app->user->id) {
             throw new NotFoundHttpException('You do not have permission to delete this article.');
         }

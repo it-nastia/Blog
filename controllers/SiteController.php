@@ -8,6 +8,7 @@ use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
+use app\models\SignupForm;
 use app\models\Article;
 
 class SiteController extends Controller
@@ -61,7 +62,7 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        // Перенаправляем на список статей
+        // Перенаправляємо на список статей
         return $this->redirect(['article/index']);
     }
 
@@ -110,13 +111,30 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays registration page.
+     * Signs user up.
      *
-     * @return string|Response
+     * @return mixed
      */
     public function actionRegister()
     {
-        return $this->render('register');
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $model = new SignupForm();
+        
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->signup()) {
+                Yii::$app->session->setFlash('success', 'Thank you for registration. Please login with your credentials.');
+                return $this->redirect(['login']);
+            } else {
+                Yii::$app->session->setFlash('error', 'Registration failed. Please check the form for errors.');
+            }
+        }
+
+        return $this->render('register', [
+            'model' => $model,
+        ]);
     }
 
 }

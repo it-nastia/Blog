@@ -25,7 +25,7 @@ use yii\behaviors\TimestampBehavior;
  */
 class Comment extends ActiveRecord
 {
-    // Константы для статусов
+    // Константи для статусів
     const STATUS_PENDING = 'pending';
     const STATUS_APPROVED = 'approved';
     const STATUS_REJECTED = 'rejected';
@@ -86,7 +86,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Валидация: проверяет, что родительский комментарий принадлежит той же статье
+     * Валідація: проверяє, чи батьківський коментар належить тій самій статті
      * @param string $attribute
      * @param array $params
      */
@@ -101,7 +101,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Связь со статьей (1-N)
+     * Зв'язок з статтею (1-N)
      * @return \yii\db\ActiveQuery
      */
     public function getArticle()
@@ -110,7 +110,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Связь с пользователем (1-N, может быть NULL)
+     * Зв'язок з користувачем (1-N, може бути NULL)
      * @return \yii\db\ActiveQuery
      */
     public function getUser()
@@ -119,7 +119,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Связь с родительским комментарием (самосвязь)
+     * Зв'язок з батьківським коментарем (самосв'язок)
      * @return \yii\db\ActiveQuery
      */
     public function getParent()
@@ -128,7 +128,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Связь с дочерними комментариями (ответы)
+     * Зв'язок з дочірніми коментарями (відповіді)
      * @return \yii\db\ActiveQuery
      */
     public function getReplies()
@@ -139,7 +139,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Получить все дочерние комментарии (включая неодобренные)
+     * Отримати всі дочірні коментари (включаючи неодобренні)
      * @return \yii\db\ActiveQuery
      */
     public function getAllReplies()
@@ -149,7 +149,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Получить количество ответов
+     * Отримати кількість відповідей
      * @return int
      */
     public function getRepliesCount()
@@ -158,7 +158,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Проверяет, является ли комментарий корневым (не имеет родителя)
+     * Перевіряє, чи є коментар корневим (не має батька)
      * @return bool
      */
     public function isRoot()
@@ -167,7 +167,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Проверяет, является ли комментарий ответом (имеет родителя)
+     * Перевіряє, чи є коментар відповіддю (має батька)
      * @return bool
      */
     public function isReply()
@@ -176,7 +176,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Проверяет, одобрен ли комментарий
+     * Перевіряє, чи є коментар схвалений
      * @return bool
      */
     public function isApproved()
@@ -185,7 +185,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Проверяет, ожидает ли комментарий модерации
+     * Перевіряє, чи очікує коментар модерації
      * @return bool
      */
     public function isPending()
@@ -194,7 +194,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Получить имя автора комментария
+     * Отримати ім'я автора коментаря
      * @return string
      */
     public function getAuthorName()
@@ -203,7 +203,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Получить одобренные комментарии
+     * Отримати схвалені коментари
      * @return \yii\db\ActiveQuery
      */
     public static function findApproved()
@@ -212,7 +212,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Получить корневые комментарии (без родителя) для статьи
+     * Отримати корневі коментари (без батька) для статті
      * @param int $articleId
      * @return \yii\db\ActiveQuery
      */
@@ -224,7 +224,7 @@ class Comment extends ActiveRecord
     }
 
     /**
-     * Получить все комментарии статьи (включая вложенные)
+     * Отримати всі коментари статті (включаючи вкладені)
      * @param int $articleId
      * @return \yii\db\ActiveQuery
      */

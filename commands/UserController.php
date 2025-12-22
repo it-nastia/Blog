@@ -30,13 +30,13 @@ class UserController extends Controller
      */
     public function actionCreate($username, $email, $password, $role = 'reader')
     {
-        // Проверка роли
+        // Перевірка роли
         if (!in_array($role, [User::ROLE_AUTHOR, User::ROLE_READER])) {
             $this->stdout("Error: Role must be 'author' or 'reader'.\n", \yii\helpers\Console::FG_RED);
             return ExitCode::DATAERR;
         }
 
-        // Проверка, существует ли пользователь
+        // Перевірка, чи існує користувач
         if (User::find()->where(['username' => $username])->exists()) {
             $this->stdout("Error: User with username '{$username}' already exists.\n", \yii\helpers\Console::FG_RED);
             return ExitCode::DATAERR;
@@ -47,7 +47,7 @@ class UserController extends Controller
             return ExitCode::DATAERR;
         }
 
-        // Создание пользователя
+        // Створення користувача
         $user = new User();
         $user->username = $username;
         $user->email = $email;
@@ -76,9 +76,9 @@ class UserController extends Controller
     }
 
     /**
-     * Список всех пользователей
+     * Список всіх користувачів
      * 
-     * Использование:
+     * Використання:
      * php yii user/list
      * 
      * @return int Exit code
@@ -110,12 +110,12 @@ class UserController extends Controller
     }
 
     /**
-     * Удаляет пользователя
+     * Видаляє користувача
      * 
-     * Использование:
+     * Використання:
      * php yii user/delete username
      * 
-     * @param string $username Имя пользователя
+     * @param string $username Ім'я користувача
      * @return int Exit code
      */
     public function actionDelete($username)

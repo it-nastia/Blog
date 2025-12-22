@@ -76,7 +76,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     </div>
                 <?php endforeach; ?>
 
-                <!-- Пагинация -->
+                <!-- Пагінація -->
                 <div class="mt-4">
                     <?= LinkPager::widget([
                         'pagination' => $dataProvider->pagination,
@@ -97,7 +97,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <?php endif; ?>
         </div>
 
-        <!-- Боковая панель -->
+        <!-- Бокова панель -->
         <div class="col-lg-3">
             <div class="card mb-4">
                 <div class="card-header">
