@@ -622,13 +622,109 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
 
                 <!-- Секция Комментарии -->
                 <div id="comments-section" class="profile-section" style="display: none;">
-                    <h2>Comments</h2>
-                    <div class="card">
-                        <div class="card-body">
-                            <p>Comments management section. Content will be added later.</p>
-                            <p class="text-muted">Here you will be able to manage all comments.</p>
-                        </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2>Comments</h2>
                     </div>
+                    
+                    <?php
+                    // Получаем все комментарии к статьям автора
+                    $comments = \app\models\Comment::find()
+                        ->joinWith('article')
+                        ->where(['articles.author_id' => $user->id])
+                        ->orderBy(['comments.created_at' => SORT_DESC])
+                        ->all();
+                    ?>
+                    
+                    <?php if (empty($comments)): ?>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <p class="text-muted mb-0">No comments yet.</p>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">ID</th>
+                                        <th>Article</th>
+                                        <th>Author</th>
+                                        <th>Content</th>
+                                        <th>Status</th>
+                                        <th style="white-space: nowrap;">Created</th>
+                                        <th style="width: 150px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($comments as $comment): ?>
+                                        <tr id="comment-row-<?= $comment->id ?>">
+                                            <td><?= $comment->id ?></td>
+                                            <td>
+                                                <?= Html::a(
+                                                    Html::encode($comment->article->title ?? 'N/A'),
+                                                    ['/article/view', 'slug' => $comment->article->slug ?? ''],
+                                                    ['target' => '_blank', 'class' => 'text-decoration-none']
+                                                ) ?>
+                                                <?php if ($comment->parent_id): ?>
+                                                    <br><small class="text-muted">Reply to comment #<?= $comment->parent_id ?></small>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <?php if ($comment->user): ?>
+                                                    <?= Html::encode($comment->user->username) ?>
+                                                <?php else: ?>
+                                                    <span class="text-muted">Guest</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td id="comment-content-<?= $comment->id ?>">
+                                                <?= \yii\helpers\StringHelper::truncate(Html::encode($comment->content), 100) ?>
+                                            </td>
+                                            <td id="comment-status-<?= $comment->id ?>">
+                                                <?php
+                                                $editComment = \app\models\Comment::findOne($comment->id);
+                                                $statusForm = ActiveForm::begin([
+                                                    'action' => ['user/comment-update', 'id' => $comment->id],
+                                                    'method' => 'post',
+                                                    'options' => [
+                                                        'class' => 'comment-status-form',
+                                                        'style' => 'margin: 0;'
+                                                    ]
+                                                ]);
+                                                ?>
+                                                <?= $statusForm->field($editComment, 'status', [
+                                                    'options' => ['class' => 'mb-0']
+                                                ])->dropDownList([
+                                                    \app\models\Comment::STATUS_PENDING => 'Pending',
+                                                    \app\models\Comment::STATUS_APPROVED => 'Approved',
+                                                    \app\models\Comment::STATUS_REJECTED => 'Rejected',
+                                                ], [
+                                                    'class' => 'form-select form-select-sm',
+                                                    'onchange' => 'this.form.submit();',
+                                                    'style' => 'min-width: 110px;'
+                                                ])->label(false) ?>
+                                                <?php ActiveForm::end(); ?>
+                                            </td>
+                                            <td style="white-space: nowrap;">
+                                                <small><?= date('Y-m-d H:i', $comment->created_at) ?></small>
+                                            </td>
+                                            <td>
+                                                <div id="comment-actions-<?= $comment->id ?>" class="d-flex gap-1">
+                                                    <?= Html::a('<i class="bi bi-trash"></i> Delete', ['user/comment-delete', 'id' => $comment->id], [
+                                                        'class' => 'btn btn-sm btn-danger',
+                                                        'title' => 'Delete Comment',
+                                                        'data' => [
+                                                            'confirm' => 'Are you sure you want to delete this comment?',
+                                                            'method' => 'post',
+                                                        ],
+                                                    ]) ?>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -791,4 +887,5 @@ function hideArticleEditForm(articleId) {
     document.getElementById('article-edit-form-row-' + articleId).style.display = 'none';
     document.getElementById('article-actions-' + articleId).style.display = 'flex';
 }
+
 </script>

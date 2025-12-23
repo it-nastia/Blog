@@ -30,7 +30,7 @@ class UserController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['profile', 'update', 'category-create', 'category-update', 'category-delete', 'tag-create', 'tag-update', 'tag-delete', 'article-create', 'article-update', 'article-delete'],
+                        'actions' => ['profile', 'update', 'category-create', 'category-update', 'category-delete', 'tag-create', 'tag-update', 'tag-delete', 'article-create', 'article-update', 'article-delete', 'comment-update', 'comment-delete'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -64,7 +64,11 @@ class UserController extends Controller
             $stats['articles'] = Article::find()->where(['author_id' => $user->id])->count();
             $stats['categories'] = Category::find()->count();
             $stats['tags'] = Tag::find()->count();
-            $stats['comments'] = Comment::find()->count();
+            // Коментарі до статей автора
+            $stats['comments'] = Comment::find()
+                ->joinWith('article')
+                ->where(['articles.author_id' => $user->id])
+                ->count();
         }
 
         $model = new ProfileForm();
@@ -377,6 +381,74 @@ class UserController extends Controller
         Yii::$app->session->setFlash('success', 'Article deleted successfully.');
 
         return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'articles-section']);
+    }
+
+    /**
+     * Updates an existing comment from profile page.
+     * @param int $id
+     * @return Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionCommentUpdate($id)
+    {
+        if (!Yii::$app->user->identity->isAuthor()) {
+            throw new NotFoundHttpException('Only authors can update comments.');
+        }
+
+        $model = Comment::findOne($id);
+        if ($model === null) {
+            throw new NotFoundHttpException('Comment not found.');
+        }
+
+        // Перевіряємо, чи є коментар до статті автора
+        $article = Article::findOne($model->article_id);
+        if ($article === null || $article->author_id !== Yii::$app->user->id) {
+            throw new NotFoundHttpException('You do not have permission to update this comment.');
+        }
+
+        // Обновляємо тільки статус
+        $post = Yii::$app->request->post('Comment');
+        if ($post && isset($post['status'])) {
+            $model->status = $post['status'];
+            if ($model->save(false)) {
+                Yii::$app->session->setFlash('success', 'Comment status updated successfully.');
+            } else {
+                $errors = $model->getFirstErrors();
+                $errorMessage = !empty($errors) ? implode(', ', $errors) : 'Failed to update comment status.';
+                Yii::$app->session->setFlash('error', $errorMessage);
+            }
+        }
+
+        return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'comments-section']);
+    }
+
+    /**
+     * Deletes an existing comment from profile page.
+     * @param int $id
+     * @return Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionCommentDelete($id)
+    {
+        if (!Yii::$app->user->identity->isAuthor()) {
+            throw new NotFoundHttpException('Only authors can delete comments.');
+        }
+
+        $model = Comment::findOne($id);
+        if ($model === null) {
+            throw new NotFoundHttpException('Comment not found.');
+        }
+
+        // Перевіряємо, чи є коментар до статті автора
+        $article = Article::findOne($model->article_id);
+        if ($article === null || $article->author_id !== Yii::$app->user->id) {
+            throw new NotFoundHttpException('You do not have permission to delete this comment.');
+        }
+
+        $model->delete();
+        Yii::$app->session->setFlash('success', 'Comment deleted successfully.');
+
+        return $this->redirect(['profile', 'id' => Yii::$app->user->id, '#' => 'comments-section']);
     }
 }
 
