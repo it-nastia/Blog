@@ -97,7 +97,7 @@ $this->registerLinkTag(['rel' => 'stylesheet', 'href' => 'https://cdn.jsdelivr.n
     echo Html::submitButton('Search', ['class' => 'btn btn-outline-light']);
     ActiveForm::end();
     
-    // Блок користувача (справа)
+    // Блок користувача
     if (Yii::$app->user->isGuest) {
         // Для неавторизованих користувачів
         echo Html::a('Login', ['/site/login'], ['class' => 'btn btn-outline-light me-2']);

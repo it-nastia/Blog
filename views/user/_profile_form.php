@@ -10,7 +10,7 @@ use yii\bootstrap5\ActiveForm;
 
 <div class="profile-form">
     <div class="row">
-        <!-- Аватар и основная информация -->
+        <!-- Аватар і основна інформація -->
         <div class="col-lg-4 col-md-5 mb-4">
             <div class="card">
                 <div class="card-body text-center">
@@ -36,7 +36,7 @@ use yii\bootstrap5\ActiveForm;
             </div>
         </div>
 
-        <!-- Форма редактирования -->
+        <!-- Форма редагування -->
         <div class="col-lg-8 col-md-7">
             <div class="card">
                 <div class="card-header">
@@ -173,7 +173,7 @@ use yii\bootstrap5\ActiveForm;
                 </div>
             </div>
 
-            <!-- Кнопка выхода -->
+            <!-- Кнопка виходу -->
             <div class="card mt-3">
                 <div class="card-body">
                     <h6 class="mb-3">Account Actions</h6>

@@ -62,10 +62,30 @@ class ArticleController extends Controller
         $categoryId = Yii::$app->request->get('category_id');
         $tagId = Yii::$app->request->get('tag_id');
         $search = Yii::$app->request->get('search');
+        $sort = Yii::$app->request->get('sort', 'newest'); // По умолчанию: новейшие
 
         $query = Article::findPublished()
-            ->with(['category', 'author', 'tags'])
-            ->orderBy(['created_at' => SORT_DESC]);
+            ->with(['category', 'author', 'tags']);
+
+        // Применяем сортировку
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy(['created_at' => SORT_ASC]);
+                break;
+            case 'popular':
+                $query->orderBy(['views' => SORT_DESC]);
+                break;
+            case 'title_asc':
+                $query->orderBy(['title' => SORT_ASC]);
+                break;
+            case 'title_desc':
+                $query->orderBy(['title' => SORT_DESC]);
+                break;
+            case 'newest':
+            default:
+                $query->orderBy(['created_at' => SORT_DESC]);
+                break;
+        }
 
         // Фільтрація за категорією
         if ($categoryId) {
@@ -75,15 +95,41 @@ class ArticleController extends Controller
         // Фільтрація за тегом
         if ($tagId) {
             $query = Article::findByTag($tagId)
-                ->with(['category', 'author', 'tags'])
-                ->orderBy(['created_at' => SORT_DESC]);
+                ->with(['category', 'author', 'tags']);
+            // Применяем сортировку снова после findByTag
+            switch ($sort) {
+                case 'oldest':
+                    $query->orderBy(['created_at' => SORT_ASC]);
+                    break;
+                case 'popular':
+                    $query->orderBy(['views' => SORT_DESC]);
+                    break;
+                case 'title_asc':
+                    $query->orderBy(['title' => SORT_ASC]);
+                    break;
+                case 'title_desc':
+                    $query->orderBy(['title' => SORT_DESC]);
+                    break;
+                case 'newest':
+                default:
+                    $query->orderBy(['created_at' => SORT_DESC]);
+                    break;
+            }
         }
 
-        // Пошук за заголовком та вмістом
+        // Пошук за заголовком, вмістом та тегами
         if ($search) {
+            // Используем подзапрос для поиска по тегам, чтобы избежать проблем с join'ами
+            $tagSubquery = (new \yii\db\Query())
+                ->select('article_id')
+                ->from('article_tag')
+                ->innerJoin('tags', 'article_tag.tag_id = tags.id')
+                ->where(['like', 'tags.name', $search]);
+            
             $query->andWhere(['or',
                 ['like', 'title', $search],
-                ['like', 'content', $search]
+                ['like', 'content', $search],
+                ['in', 'id', $tagSubquery]
             ]);
         }
 
@@ -108,6 +154,7 @@ class ArticleController extends Controller
             'selectedCategoryId' => $categoryId,
             'selectedTagId' => $tagId,
             'search' => $search,
+            'sort' => $sort,
         ]);
     }
 

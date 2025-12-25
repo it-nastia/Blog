@@ -16,9 +16,9 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
 
 <div class="user-profile">
     <?php if ($user->isAuthor()): ?>
-        <!-- Layout для автора с боковой панелью -->
+        <!-- Layout для автора з боковою панеллю -->
         <div class="row">
-            <!-- Боковая панель (слева) -->
+            <!-- Бокова панель -->
             <div class="col-lg-3 mb-4">
                 <div class="card">
                     <div class="card-header">
@@ -57,15 +57,15 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                 </div>
             </div>
 
-            <!-- Основной контент (справа) -->
+            <!-- Основний контент -->
             <div class="col-lg-9">
-                <!-- Секция Профиль -->
+                <!-- Секція Профіль -->
                 <div id="profile-section" class="profile-section">
                     <h2>Profile</h2>
                     <?= $this->render('_profile_form', ['user' => $user, 'model' => $model]) ?>
                 </div>
 
-                <!-- Секция Статьи -->
+                <!-- Секція Статті -->
                 <div id="articles-section" class="profile-section" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2>Articles</h2>
@@ -74,7 +74,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                         </button>
                     </div>
 
-                    <!-- Форма создания статьи -->
+                    <!-- Форма створення статті -->
                     <div id="article-create-form" class="card mb-4" style="display: none;">
                         <div class="card-header">
                             <h5 class="mb-0">Create New Article</h5>
@@ -239,7 +239,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                                                 </div>
                                             </td>
                                         </tr>
-                                        <!-- Форма редактирования (скрыта, под строкой) -->
+                                        <!-- Форма редагування (скрита, під рядком) -->
                                         <tr id="article-edit-form-row-<?= $article->id ?>" style="display: none;">
                                             <td colspan="7">
                                                 <div class="card mt-2 mb-2">
@@ -319,7 +319,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                     <?php endif; ?>
                 </div>
 
-                <!-- Секция Категории -->
+                <!-- Секція Категорії -->
                 <div id="categories-section" class="profile-section" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2>Categories</h2>
@@ -328,7 +328,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                         </button>
                     </div>
 
-                    <!-- Форма создания категории -->
+                    <!-- Форма створення категорії -->
                     <div id="category-create-form" class="card mb-4" style="display: none;">
                         <div class="card-header">
                             <h5 class="mb-0">Create New Category</h5>
@@ -485,7 +485,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                     <?php endif; ?>
                 </div>
 
-                <!-- Секция Теги -->
+                <!-- Секція Теги -->
                 <div id="tags-section" class="profile-section" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2>Tags</h2>
@@ -494,7 +494,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                         </button>
                     </div>
 
-                    <!-- Форма создания тега -->
+                    <!-- Форма створення тега -->
                     <div id="tag-create-form" class="card mb-4" style="display: none;">
                         <div class="card-header">
                             <h5 class="mb-0">Create New Tag</h5>
@@ -579,7 +579,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                                                 </div>
                                             </td>
                                         </tr>
-                                        <!-- Форма редактирования (скрыта, под строкой) -->
+                                        <!-- Форма редагування (скрита, під рядком) -->
                                         <tr id="tag-edit-form-row-<?= $tag->id ?>" style="display: none;">
                                             <td colspan="5">
                                                 <div class="card mt-2 mb-2">
@@ -620,14 +620,14 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                     <?php endif; ?>
                 </div>
 
-                <!-- Секция Комментарии -->
+                <!-- Секція Коментарі -->
                 <div id="comments-section" class="profile-section" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2>Comments</h2>
                     </div>
                     
                     <?php
-                    // Получаем все комментарии к статьям автора
+                    // Отримуємо всі коментарі до статтей автора
                     $comments = \app\models\Comment::find()
                         ->joinWith('article')
                         ->where(['articles.author_id' => $user->id])
@@ -729,7 +729,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
             </div>
         </div>
     <?php else: ?>
-        <!-- Layout для читателя (без боковой панели) -->
+        <!-- Layout для читача (без бокової панелі) -->
         <div class="row">
             <div class="col-12">
                 <h2>Profile</h2>
@@ -740,7 +740,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
 </div>
 
 <script>
-// Перемикання між секціями для авторів
+// Перемикання між секціями для авторів 
 document.addEventListener('DOMContentLoaded', function() {
     const menuItems = document.querySelectorAll('[data-section]');
     const sections = document.querySelectorAll('.profile-section');
