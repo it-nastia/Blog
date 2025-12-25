@@ -23,6 +23,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 $this->registerLinkTag(['rel' => 'preconnect', 'href' => 'https://fonts.googleapis.com']);
 $this->registerLinkTag(['rel' => 'preconnect', 'href' => 'https://fonts.gstatic.com', 'crossorigin' => '']);
 $this->registerLinkTag(['rel' => 'stylesheet', 'href' => 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap']);
+// Bootstrap Icons
+$this->registerLinkTag(['rel' => 'stylesheet', 'href' => 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css']);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -57,9 +59,9 @@ $this->registerLinkTag(['rel' => 'stylesheet', 'href' => 'https://fonts.googleap
         'options' => ['class' => 'navbar-expand-lg navbar-dark']
     ]);
     
-    // Основне навігаційне меню
+    //  навігаційне меню
     $navItems = [
-        ['label' => 'Home', 'url' => ['/article/index']],
+        ['label' => 'Articles', 'url' => ['/article/index']],
     ];
     
     // Випадаюче меню "Категорії"
