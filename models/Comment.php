@@ -63,7 +63,7 @@ class Comment extends ActiveRecord
             [['article_id'], 'exist', 'skipOnError' => true, 'targetClass' => Article::class, 'targetAttribute' => ['article_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
             [['parent_id'], 'exist', 'skipOnError' => true, 'skipOnEmpty' => true, 'targetClass' => Comment::class, 'targetAttribute' => ['parent_id' => 'id']],
-            // Проверка, что родительский комментарий принадлежит той же статье
+            // Перевіряємо, що батьківський коментар належить тій самій статті
             ['parent_id', 'validateParentComment', 'skipOnEmpty' => true],
         ];
     }
@@ -98,7 +98,7 @@ class Comment extends ActiveRecord
                 $this->addError($attribute, 'Parent comment not found.');
                 return;
             }
-            // Приводим к int для корректного сравнения
+            // Приводимо до int для коректного порівняння
             $parentArticleId = (int)$parent->article_id;
             $currentArticleId = (int)$this->article_id;
             if ($parentArticleId !== $currentArticleId) {

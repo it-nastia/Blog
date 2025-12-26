@@ -50,7 +50,7 @@ class CommentController extends Controller
     {
         $model = new Comment();
         
-        // Получаем article_id из POST для редиректа в случае ошибки
+        // Отримуємо article_id з POST для перенаправлення в разі помилки
         $postData = Yii::$app->request->post();
         $articleId = $postData['Comment']['article_id'] ?? null;
 
@@ -91,7 +91,7 @@ class CommentController extends Controller
                     Yii::$app->session->setFlash('error', 'Parent comment not found.');
                     return $this->redirect(['article/view', 'slug' => $article->slug]);
                 }
-                // Приводим к int для корректного сравнения
+                // Приводимо до int для коректного порівняння
                 $parentArticleId = (int)$parent->article_id;
                 $currentArticleId = (int)$model->article_id;
                 if ($parentArticleId !== $currentArticleId) {
@@ -115,7 +115,7 @@ class CommentController extends Controller
                         : 'Comment submitted and is pending moderation.'
                 );
             } else {
-                // Логируем ошибки валидации для отладки
+                // Логуємо помилки валідації для відладки
                 $errors = $model->getFirstErrors();
                 $errorMessage = 'Failed to post comment.';
                 if (!empty($errors)) {

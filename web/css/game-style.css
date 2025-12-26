@@ -2593,10 +2593,6 @@ blockquote {
   padding: 1.5rem 0;
 }
 
-.article-content p {
-  /* margin-bottom: 1.5rem; */
-}
-
 /* Share Section - внутри правой колонки */
 .article-share-section {
   padding-top: 1.5rem;
@@ -2797,15 +2793,48 @@ blockquote {
   padding: 1rem;
 }
 
+.comment-header {
+  width: 100%;
+}
+
+.comment-author-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.comment-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.comment-avatar:hover {
+  border-color: var(--accent-neon-blue);
+  box-shadow: var(--glow-neon);
+}
+
+.comment-author-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .comment strong {
   color: var(--text-primary);
   font-weight: 600;
   font-size: 1rem;
+  line-height: 1.2;
 }
 
 .comment .text-muted {
   color: var(--text-muted);
   font-size: 0.875rem;
+  line-height: 1.2;
 }
 
 .comment p {

@@ -14,11 +14,24 @@ $marginLeft = $level * 30; // Відступ для вкладених коме�
     <div class="card">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                    <strong><?= Html::encode($comment->getAuthorName()) ?></strong>
-                    <small class="text-muted ms-2">
-                        <?= date('F j, Y, g:i a', $comment->created_at) ?>
-                    </small>
+                <div class="comment-header">
+                    <div class="comment-author-info">
+                        <?php if ($comment->user): ?>
+                            <?= Html::img(
+                                $comment->user->getAvatarUrl(),
+                                [
+                                    'alt' => Html::encode($comment->user->username),
+                                    'class' => 'comment-avatar',
+                                ]
+                            ) ?>
+                        <?php endif; ?>
+                        <div class="comment-author-details">
+                            <strong><?= Html::encode($comment->getAuthorName()) ?></strong>
+                            <small class="text-muted ms-2">
+                                <?= date('F j, Y, g:i a', $comment->created_at) ?>
+                            </small>
+                        </div>
+                    </div>
                 </div>
             </div>
             
