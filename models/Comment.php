@@ -62,9 +62,9 @@ class Comment extends ActiveRecord
             [['status'], 'default', 'value' => self::STATUS_PENDING],
             [['article_id'], 'exist', 'skipOnError' => true, 'targetClass' => Article::class, 'targetAttribute' => ['article_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
-            [['parent_id'], 'exist', 'skipOnError' => true, 'targetClass' => Comment::class, 'targetAttribute' => ['parent_id' => 'id']],
+            [['parent_id'], 'exist', 'skipOnError' => true, 'skipOnEmpty' => true, 'targetClass' => Comment::class, 'targetAttribute' => ['parent_id' => 'id']],
             // Проверка, что родительский комментарий принадлежит той же статье
-            ['parent_id', 'validateParentComment'],
+            ['parent_id', 'validateParentComment', 'skipOnEmpty' => true],
         ];
     }
 
@@ -94,7 +94,14 @@ class Comment extends ActiveRecord
     {
         if ($this->parent_id) {
             $parent = static::findOne($this->parent_id);
-            if ($parent && $parent->article_id !== $this->article_id) {
+            if (!$parent) {
+                $this->addError($attribute, 'Parent comment not found.');
+                return;
+            }
+            // Приводим к int для корректного сравнения
+            $parentArticleId = (int)$parent->article_id;
+            $currentArticleId = (int)$this->article_id;
+            if ($parentArticleId !== $currentArticleId) {
                 $this->addError($attribute, 'Parent comment must belong to the same article.');
             }
         }

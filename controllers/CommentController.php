@@ -49,12 +49,23 @@ class CommentController extends Controller
     public function actionCreate()
     {
         $model = new Comment();
+        
+        // Получаем article_id из POST для редиректа в случае ошибки
+        $postData = Yii::$app->request->post();
+        $articleId = $postData['Comment']['article_id'] ?? null;
 
-        if ($model->load(Yii::$app->request->post())) {
+        if ($model->load($postData)) {
             // Перевіряємо, що стаття існує
             $article = Article::findOne($model->article_id);
             if (!$article) {
-                throw new NotFoundHttpException('Article not found.');
+                Yii::$app->session->setFlash('error', 'Article not found.');
+                if ($articleId) {
+                    $article = Article::findOne($articleId);
+                    if ($article) {
+                        return $this->redirect(['article/view', 'slug' => $article->slug]);
+                    }
+                }
+                return $this->goHome();
             }
 
             // Встановлюємо користувача, якщо не встановлено
@@ -64,13 +75,26 @@ class CommentController extends Controller
 
             // Перевіряємо, що користувач може коментувати
             if ($model->user_id != Yii::$app->user->id) {
-                throw new NotFoundHttpException('You do not have permission to create this comment.');
+                Yii::$app->session->setFlash('error', 'You do not have permission to create this comment.');
+                return $this->redirect(['article/view', 'slug' => $article->slug]);
+            }
+
+            // Нормалізуємо parent_id: якщо пустий або 0, встановлюємо null
+            if (empty($model->parent_id)) {
+                $model->parent_id = null;
             }
 
             // Якщо є parent_id, перевіряємо що батьківський коментар існує
             if ($model->parent_id) {
                 $parent = Comment::findOne($model->parent_id);
-                if (!$parent || $parent->article_id != $model->article_id) {
+                if (!$parent) {
+                    Yii::$app->session->setFlash('error', 'Parent comment not found.');
+                    return $this->redirect(['article/view', 'slug' => $article->slug]);
+                }
+                // Приводим к int для корректного сравнения
+                $parentArticleId = (int)$parent->article_id;
+                $currentArticleId = (int)$model->article_id;
+                if ($parentArticleId !== $currentArticleId) {
                     Yii::$app->session->setFlash('error', 'Invalid parent comment.');
                     return $this->redirect(['article/view', 'slug' => $article->slug]);
                 }
@@ -91,15 +115,29 @@ class CommentController extends Controller
                         : 'Comment submitted and is pending moderation.'
                 );
             } else {
-                Yii::$app->session->setFlash('error', 'Failed to post comment.');
+                // Логируем ошибки валидации для отладки
+                $errors = $model->getFirstErrors();
+                $errorMessage = 'Failed to post comment.';
+                if (!empty($errors)) {
+                    $errorMessage .= ' ' . implode(' ', $errors);
+                }
+                Yii::$app->session->setFlash('error', $errorMessage);
+                Yii::error('Comment save failed: ' . json_encode($model->errors), __METHOD__);
             }
         } else {
             Yii::$app->session->setFlash('error', 'Invalid comment data.');
+            Yii::error('Comment load failed. POST data: ' . json_encode($postData), __METHOD__);
         }
 
         // Перенаправляємо назад на статтю
-        $article = Article::findOne($model->article_id);
-        return $this->redirect(['article/view', 'slug' => $article->slug]);
+        if ($articleId) {
+            $article = Article::findOne($articleId);
+            if ($article) {
+                return $this->redirect(['article/view', 'slug' => $article->slug]);
+            }
+        }
+        
+        return $this->goHome();
     }
 }
 
