@@ -2895,3 +2895,189 @@ blockquote {
   margin-top: 0.75rem;
   margin-right: 0.5rem;
 }
+
+/* ============================================
+   ABOUT PAGE
+   ============================================ */
+.about-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Hero / Intro Section */
+.about-hero {
+  text-align: center;
+  padding: 3rem 0;
+  margin-bottom: 3rem;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+}
+
+.about-hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.about-hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+}
+
+.about-hero-subtitle {
+  font-size: 1.25rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* About Sections */
+.about-section {
+  margin-bottom: 3rem;
+  padding: 2.5rem;
+  background-color: var(--bg-secondary);
+  border-radius: 5px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+.about-section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--accent-neon-blue);
+  text-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+  position: relative;
+  padding-left: 16px;
+}
+
+.about-section-title::before {
+  content: "";
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  width: 3px;
+  height: 90%;
+  background-color: var(--text-primary);
+}
+
+.about-section-content {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+.about-section-content p {
+  margin-bottom: 1.5rem;
+}
+
+.about-section-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Philosophy List */
+.about-philosophy-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.about-philosophy-list li {
+  padding: 0.75rem 0;
+  padding-left: 2rem;
+  position: relative;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.8;
+  transition: all var(--transition-fast);
+}
+
+.about-philosophy-list li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--accent-neon-blue);
+  font-size: 1.2rem;
+  text-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
+}
+
+.about-philosophy-list li:hover {
+  color: var(--text-primary);
+  padding-left: 2.5rem;
+}
+
+/* Closing Section */
+.about-closing {
+  text-align: center;
+  padding: 3rem 2rem;
+  margin-top: 3rem;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.about-closing-text {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin: 0;
+  font-style: italic;
+}
+
+/* Responsive Design for About Page */
+@media (max-width: 767.98px) {
+  .about-page {
+    padding: 1rem 0.5rem;
+  }
+
+  .about-hero {
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+  }
+
+  .about-hero-title {
+    font-size: 2rem;
+  }
+
+  .about-hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .about-section {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .about-section-title {
+    font-size: 1.5rem;
+  }
+
+  .about-section-content {
+    font-size: 1rem;
+  }
+
+  .about-philosophy-list li {
+    font-size: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .about-philosophy-list li::before {
+    font-size: 1rem;
+  }
+
+  .about-closing {
+    padding: 2rem 1rem;
+  }
+
+  .about-closing-text {
+    font-size: 1.1rem;
+  }
+}
