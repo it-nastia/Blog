@@ -5,6 +5,7 @@
 
 use yii\bootstrap5\Html;
 use yii\grid\GridView;
+use yii\widgets\LinkPager;
 
 $this->title = 'Categories';
 $this->params['breadcrumbs'][] = $this->title;
@@ -18,6 +19,15 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
+        'pager' => [
+            'class' => LinkPager::class,
+            'options' => ['class' => 'pagination justify-content-center'],
+            'linkOptions' => ['class' => 'page-link'],
+            'activePageCssClass' => 'active',
+            'disabledPageCssClass' => 'disabled',
+            'prevPageLabel' => '<i class="bi bi-chevron-left"></i>',
+            'nextPageLabel' => '<i class="bi bi-chevron-right"></i>',
+        ],
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
             
@@ -58,6 +68,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'class' => 'yii\grid\ActionColumn',
+                'header' => 'Actions',
                 'template' => '{view} {update} {delete}',
                 'buttons' => [
                     'view' => function ($url, $model) {
