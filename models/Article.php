@@ -96,12 +96,29 @@ class Article extends ActiveRecord
     /**
      * Генерує slug з заголовка статті
      * Викликається перед збереженням, якщо slug не вказаний
+     * Забезпечує унікальність slug та обробку порожніх значень
      */
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            if (empty(trim($this->slug))) {
-                $this->slug = Inflector::slug($this->title);
+            // Генеруємо slug, якщо він порожній або містить тільки пробіли
+            if (empty(trim($this->slug ?? ''))) {
+                $baseSlug = Inflector::slug($this->title);
+                
+                // Якщо slug порожній після генерації, використовуємо ID або timestamp
+                if (empty($baseSlug)) {
+                    $baseSlug = 'article-' . ($this->id ?? time());
+                }
+                
+                // Перевіряємо унікальність та додаємо суфікс при необхідності
+                $slug = $baseSlug;
+                $counter = 1;
+                while (static::find()->where(['slug' => $slug])->andWhere(['!=', 'id', $this->id ?? 0])->exists()) {
+                    $slug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+                
+                $this->slug = $slug;
             }
             return true;
         }
@@ -222,6 +239,18 @@ class Article extends ActiveRecord
     }
 
     /**
+     * Отримати статті по slug категорії
+     * @param string $categorySlug
+     * @return \yii\db\ActiveQuery
+     */
+    public static function findByCategorySlug($categorySlug)
+    {
+        return static::findPublished()
+            ->innerJoin('categories', 'articles.category_id = categories.id')
+            ->where(['categories.slug' => $categorySlug]);
+    }
+
+    /**
      * Отримати статті по тегу
      * @param int $tagId
      * @return \yii\db\ActiveQuery
@@ -231,5 +260,18 @@ class Article extends ActiveRecord
         return static::findPublished()
             ->innerJoin('article_tag', 'articles.id = article_tag.article_id')
             ->where(['article_tag.tag_id' => $tagId]);
+    }
+
+    /**
+     * Отримати статті по slug тега
+     * @param string $tagSlug
+     * @return \yii\db\ActiveQuery
+     */
+    public static function findByTagSlug($tagSlug)
+    {
+        return static::findPublished()
+            ->innerJoin('article_tag', 'articles.id = article_tag.article_id')
+            ->innerJoin('tags', 'article_tag.tag_id = tags.id')
+            ->where(['tags.slug' => $tagSlug]);
     }
 }

@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Category;
+use app\models\Tag;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -12,9 +12,9 @@ use yii\web\Response;
 use yii\data\ActiveDataProvider;
 
 /**
- * CategoryController handles category management in admin panel.
+ * TagController handles tag management.
  */
-class CategoryController extends Controller
+class TagController extends Controller
 {
     /**
      * {@inheritdoc}
@@ -29,7 +29,7 @@ class CategoryController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => function ($rule, $action) {
-                            // Тільки автори можуть керувати категоріями
+                            // Тільки автори можуть керувати тегами
                             return !Yii::$app->user->isGuest && 
                                    Yii::$app->user->identity->isAuthor();
                         },
@@ -46,13 +46,13 @@ class CategoryController extends Controller
     }
 
     /**
-     * Lists all Category models.
+     * Lists all Tag models.
      * @return string
      */
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => Category::find()->orderBy(['name' => SORT_ASC]),
+            'query' => Tag::find()->orderBy(['name' => SORT_ASC]),
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -64,7 +64,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Displays a single Category model.
+     * Displays a single Tag model.
      * @param int $id
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
@@ -77,16 +77,16 @@ class CategoryController extends Controller
     }
 
     /**
-     * Creates a new Category model.
+     * Creates a new Tag model.
      * If creation is successful, the browser will be redirected to the 'view' page or returnUrl if provided.
      * @return string|Response
      */
     public function actionCreate()
     {
-        $model = new Category();
+        $model = new Tag();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Category created successfully.');
+            Yii::$app->session->setFlash('success', 'Tag created successfully.');
             
             // Перевіряємо чи є returnUrl для перенаправлення
             $returnUrl = Yii::$app->request->post('returnUrl');
@@ -103,7 +103,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Updates an existing Category model.
+     * Updates an existing Tag model.
      * If update is successful, the browser will be redirected to the 'view' page or returnUrl if provided.
      * @param int $id
      * @return string|Response
@@ -114,7 +114,7 @@ class CategoryController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Category updated successfully.');
+            Yii::$app->session->setFlash('success', 'Tag updated successfully.');
             
             // Перевіряємо чи є returnUrl для перенаправлення
             $returnUrl = Yii::$app->request->post('returnUrl');
@@ -131,7 +131,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Deletes an existing Category model.
+     * Deletes an existing Tag model.
      * If deletion is successful, the browser will be redirected to the 'index' page or returnUrl if provided.
      * @param int $id
      * @return Response
@@ -141,9 +141,9 @@ class CategoryController extends Controller
     {
         $model = $this->findModel($id);
         
-        // Перевіряємо, чи є статті в цій категорії
+        // Перевіряємо, чи є статті з цим тегом
         if ($model->getArticlesCount() > 0) {
-            Yii::$app->session->setFlash('error', 'Cannot delete category with articles. Please remove or reassign articles first.');
+            Yii::$app->session->setFlash('error', 'Cannot delete tag with articles. Please remove tag from articles first.');
             
             // Перевіряємо чи є returnUrl
             $returnUrl = Yii::$app->request->get('returnUrl');
@@ -155,7 +155,7 @@ class CategoryController extends Controller
         }
         
         $model->delete();
-        Yii::$app->session->setFlash('success', 'Category deleted successfully.');
+        Yii::$app->session->setFlash('success', 'Tag deleted successfully.');
 
         // Перевіряємо чи є returnUrl
         $returnUrl = Yii::$app->request->get('returnUrl');
@@ -167,19 +167,19 @@ class CategoryController extends Controller
     }
 
     /**
-     * Finds the Category model based on its primary key value.
+     * Finds the Tag model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param int $id
-     * @return Category the loaded model
+     * @return Tag the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Category::findOne($id)) !== null) {
+        if (($model = Tag::findOne($id)) !== null) {
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested category does not exist.');
+        throw new NotFoundHttpException('The requested tag does not exist.');
     }
 }
 

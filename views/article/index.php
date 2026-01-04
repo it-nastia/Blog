@@ -3,8 +3,8 @@
 /** @var yii\web\View $this */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 /** @var app\models\Category[] $categories */
-/** @var int|null $selectedCategoryId */
-/** @var int|null $selectedTagId */
+/** @var string|null $selectedCategorySlug */
+/** @var string|null $selectedTagSlug */
 /** @var string|null $search */
 /** @var string $sort */
 
@@ -33,15 +33,15 @@ $this->title = 'Articles';
                                 '<i class="bi bi-grid"></i> All Categories',
                                 ['index'],
                                 [
-                                    'class' => 'list-group-item list-group-item-action' . (!$selectedCategoryId ? ' active' : '')
+                                    'class' => 'list-group-item list-group-item-action' . (!$selectedCategorySlug ? ' active' : '')
                                 ]
                             ) ?>
                             <?php foreach ($categories as $category): ?>
                                 <?= Html::a(
                                     '<span class="category-name">' . Html::encode($category->name) . '</span> <span class="badge bg-secondary float-end">' . $category->getArticlesCount() . '</span>',
-                                    ['index', 'category_id' => $category->id],
+                                    ['index', 'category_slug' => $category->slug],
                                     [
-                                        'class' => 'list-group-item list-group-item-action' . ($selectedCategoryId == $category->id ? ' active' : '')
+                                        'class' => 'list-group-item list-group-item-action' . ($selectedCategorySlug == $category->slug ? ' active' : '')
                                     ]
                                 ) ?>
                             <?php endforeach; ?>
@@ -80,7 +80,7 @@ $this->title = 'Articles';
                                 <?php
                                 // Зберігаємо поточні параметри фільтрації
                                 $currentParams = Yii::$app->request->get();
-                                foreach (['category_id', 'tag_id', 'sort'] as $param) {
+                                foreach (['category_slug', 'tag_slug', 'sort'] as $param) {
                                     if (isset($currentParams[$param])) {
                                         echo Html::hiddenInput($param, $currentParams[$param]);
                                     }
@@ -101,8 +101,8 @@ $this->title = 'Articles';
                                         <?= Html::a(
                                             '<i class="bi bi-x"></i>',
                                             array_merge(['article/index'], array_filter([
-                                                'category_id' => $selectedCategoryId,
-                                                'tag_id' => $selectedTagId,
+                                                'category_slug' => $selectedCategorySlug,
+                                                'tag_slug' => $selectedTagSlug,
                                                 'sort' => $sort
                                             ])),
                                             [
@@ -175,10 +175,10 @@ $this->title = 'Articles';
                                             <h2 class="article-card-title">' . Html::encode($article->title) . '</h2>
                                             <p class="article-card-excerpt">' . Html::encode($article->getExcerpt(150)) . '</p>
                                             <div class="article-card-tags">
-                                                ' . (empty($article->tags) ? '' : implode('', array_map(function($tag) use ($selectedCategoryId, $search, $sort) {
+                                                ' . (empty($article->tags) ? '' : implode('', array_map(function($tag) use ($selectedCategorySlug, $search, $sort) {
                                                     return Html::a(
                                                         '#' . Html::encode($tag->name),
-                                                        ['index', 'tag_id' => $tag->id],
+                                                        ['index', 'tag_slug' => $tag->slug],
                                                         [
                                                             'class' => 'tag-badge',
                                                             'onclick' => 'event.stopPropagation(); return true;'

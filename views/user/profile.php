@@ -4,11 +4,11 @@
 /** @var app\models\User $user */
 /** @var app\models\ProfileForm $model */
 /** @var array $stats */
-/** @var app\models\Category $categoryModel */
 
 use yii\bootstrap5\Html;
 use yii\bootstrap5\ActiveForm;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 $this->title = 'Profile: ' . Html::encode($user->username);
 $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id' => $user->id]];
@@ -69,9 +69,15 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                 <div id="articles-section" class="profile-section" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2>Articles</h2>
-                        <button type="button" class="btn btn-success" onclick="toggleArticleForm()">
-                            <i class="bi bi-plus-circle"></i> Create Article
-                        </button>
+                        <div class="d-flex gap-2">
+                            <?= Html::a('<i class="bi bi-list"></i> View Full List', ['article/manage'], [
+                                'class' => 'btn btn-outline-primary',
+                                'title' => 'View all articles in separate page'
+                            ]) ?>
+                            <button type="button" class="btn btn-success" onclick="toggleArticleForm()">
+                                <i class="bi bi-plus-circle"></i> Create Article
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Форма створення статті -->
@@ -85,11 +91,14 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                             $createArticleModel->author_id = $user->id;
                             $createArticleModel->status = \app\models\Article::STATUS_DRAFT;
                             $form = ActiveForm::begin([
-                                'action' => ['user/article-create'],
+                                'action' => ['article/create'],
                                 'method' => 'post',
                                 'id' => 'article-create-form-element',
                                 'options' => ['enctype' => 'multipart/form-data']
                             ]);
+                            
+                            // Додаємо hidden поле для returnUrl
+                            echo Html::hiddenInput('returnUrl', Url::to(['user/profile', 'id' => $user->id, '#' => 'articles-section']));
                             
                             $categories = ArrayHelper::map(\app\models\Category::find()->all(), 'id', 'name');
                             $tags = \app\models\Tag::find()->orderBy(['name' => SORT_ASC])->all();
@@ -228,7 +237,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                                                             title="Edit Article">
                                                         <i class="bi bi-pencil"></i> Edit
                                                     </button>
-                                                    <?= Html::a('<i class="bi bi-trash"></i> Delete', ['user/article-delete', 'id' => $article->id], [
+                                                    <?= Html::a('<i class="bi bi-trash"></i> Delete', ['article/delete', 'id' => $article->id, 'returnUrl' => Url::to(['user/profile', 'id' => $user->id, '#' => 'articles-section'])], [
                                                         'class' => 'btn btn-sm btn-danger',
                                                         'title' => 'Delete Article',
                                                         'data' => [
@@ -250,10 +259,13 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                                                         <?php
                                                         $editArticle = \app\models\Article::findOne($article->id);
                                                         $editForm = ActiveForm::begin([
-                                                            'action' => ['user/article-update', 'id' => $article->id],
+                                                            'action' => ['article/update', 'id' => $article->id],
                                                             'method' => 'post',
                                                             'options' => ['class' => 'article-edit-form', 'enctype' => 'multipart/form-data']
                                                         ]);
+                                                        
+                                                        // Додаємо hidden поле для returnUrl
+                                                        echo Html::hiddenInput('returnUrl', Url::to(['user/profile', 'id' => $user->id, '#' => 'articles-section']));
                                                         
                                                         $editCategories = ArrayHelper::map(\app\models\Category::find()->all(), 'id', 'name');
                                                         $editTags = \app\models\Tag::find()->orderBy(['name' => SORT_ASC])->all();
@@ -323,9 +335,15 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                 <div id="categories-section" class="profile-section" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2>Categories</h2>
-                        <button type="button" class="btn btn-success" onclick="toggleCategoryForm()">
-                            <i class="bi bi-plus-circle"></i> Create Category
-                        </button>
+                        <div class="d-flex gap-2">
+                            <?= Html::a('<i class="bi bi-list"></i> View Full List', ['category/index'], [
+                                'class' => 'btn btn-outline-primary',
+                                'title' => 'View all categories in separate page'
+                            ]) ?>
+                            <button type="button" class="btn btn-success" onclick="toggleCategoryForm()">
+                                <i class="bi bi-plus-circle"></i> Create Category
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Форма створення категорії -->
@@ -337,10 +355,13 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                             <?php
                             $createCategoryModel = new \app\models\Category();
                             $form = ActiveForm::begin([
-                                'action' => ['user/category-create'],
+                                'action' => ['category/create'],
                                 'method' => 'post',
                                 'id' => 'category-create-form-element'
                             ]);
+                            
+                            // Додаємо hidden поле для returnUrl
+                            echo Html::hiddenInput('returnUrl', Url::to(['user/profile', 'id' => $user->id, '#' => 'categories-section']));
                             ?>
                             
                             <div class="row">
@@ -422,7 +443,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                                                             title="Edit Category">
                                                         <i class="bi bi-pencil"></i> Edit
                                                     </button>
-                                                    <?= Html::a('<i class="bi bi-trash"></i> Delete', ['user/category-delete', 'id' => $category->id], [
+                                                    <?= Html::a('<i class="bi bi-trash"></i> Delete', ['category/delete', 'id' => $category->id, 'returnUrl' => Url::to(['user/profile', 'id' => $user->id, '#' => 'categories-section'])], [
                                                         'class' => 'btn btn-sm btn-danger',
                                                         'title' => 'Delete Category',
                                                         'data' => [
@@ -444,10 +465,13 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                                                         <?php
                                                         $editCategory = \app\models\Category::findOne($category->id);
                                                         $editForm = ActiveForm::begin([
-                                                            'action' => ['user/category-update', 'id' => $category->id],
+                                                            'action' => ['category/update', 'id' => $category->id],
                                                             'method' => 'post',
                                                             'options' => ['class' => 'category-edit-form']
                                                         ]);
+                                                        
+                                                        // Додаємо hidden поле для returnUrl
+                                                        echo Html::hiddenInput('returnUrl', Url::to(['user/profile', 'id' => $user->id, '#' => 'categories-section']));
                                                         ?>
                                                         <div class="row">
                                                             <div class="col-md-6">
@@ -489,9 +513,15 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                 <div id="tags-section" class="profile-section" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2>Tags</h2>
-                        <button type="button" class="btn btn-success" onclick="toggleTagForm()">
-                            <i class="bi bi-plus-circle"></i> Create Tag
-                        </button>
+                        <div class="d-flex gap-2">
+                            <?= Html::a('<i class="bi bi-list"></i> View Full List', ['tag/index'], [
+                                'class' => 'btn btn-outline-primary',
+                                'title' => 'View all tags in separate page'
+                            ]) ?>
+                            <button type="button" class="btn btn-success" onclick="toggleTagForm()">
+                                <i class="bi bi-plus-circle"></i> Create Tag
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Форма створення тега -->
@@ -503,10 +533,13 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                             <?php
                             $createTagModel = new \app\models\Tag();
                             $form = ActiveForm::begin([
-                                'action' => ['user/tag-create'],
+                                'action' => ['tag/create'],
                                 'method' => 'post',
                                 'id' => 'tag-create-form-element'
                             ]);
+                            
+                            // Додаємо hidden поле для returnUrl
+                            echo Html::hiddenInput('returnUrl', Url::to(['user/profile', 'id' => $user->id, '#' => 'tags-section']));
                             ?>
                             
                             <div class="row">
@@ -568,7 +601,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                                                             title="Edit Tag">
                                                         <i class="bi bi-pencil"></i> Edit
                                                     </button>
-                                                    <?= Html::a('<i class="bi bi-trash"></i> Delete', ['user/tag-delete', 'id' => $tag->id], [
+                                                    <?= Html::a('<i class="bi bi-trash"></i> Delete', ['tag/delete', 'id' => $tag->id, 'returnUrl' => Url::to(['user/profile', 'id' => $user->id, '#' => 'tags-section'])], [
                                                         'class' => 'btn btn-sm btn-danger',
                                                         'title' => 'Delete Tag',
                                                         'data' => [
@@ -590,10 +623,13 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                                                         <?php
                                                         $editTag = \app\models\Tag::findOne($tag->id);
                                                         $editForm = ActiveForm::begin([
-                                                            'action' => ['user/tag-update', 'id' => $tag->id],
+                                                            'action' => ['tag/update', 'id' => $tag->id],
                                                             'method' => 'post',
                                                             'options' => ['class' => 'tag-edit-form']
                                                         ]);
+                                                        
+                                                        // Додаємо hidden поле для returnUrl
+                                                        echo Html::hiddenInput('returnUrl', Url::to(['user/profile', 'id' => $user->id, '#' => 'tags-section']));
                                                         ?>
                                                         <div class="row">
                                                             <div class="col-md-6">
@@ -624,6 +660,10 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                 <div id="comments-section" class="profile-section" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2>Comments</h2>
+                        <?= Html::a('<i class="bi bi-list"></i> View Full List', ['comment/index'], [
+                            'class' => 'btn btn-outline-primary',
+                            'title' => 'View all comments in separate page'
+                        ]) ?>
                     </div>
                     
                     <?php
@@ -683,13 +723,16 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                                                 <?php
                                                 $editComment = \app\models\Comment::findOne($comment->id);
                                                 $statusForm = ActiveForm::begin([
-                                                    'action' => ['user/comment-update', 'id' => $comment->id],
+                                                    'action' => ['comment/update', 'id' => $comment->id],
                                                     'method' => 'post',
                                                     'options' => [
                                                         'class' => 'comment-status-form',
                                                         'style' => 'margin: 0;'
                                                     ]
                                                 ]);
+                                                
+                                                // Додаємо hidden поле для returnUrl
+                                                echo Html::hiddenInput('returnUrl', Url::to(['user/profile', 'id' => $user->id, '#' => 'comments-section']));
                                                 ?>
                                                 <?= $statusForm->field($editComment, 'status', [
                                                     'options' => ['class' => 'mb-0']
@@ -709,7 +752,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                                             </td>
                                             <td>
                                                 <div id="comment-actions-<?= $comment->id ?>" class="d-flex gap-1">
-                                                    <?= Html::a('<i class="bi bi-trash"></i> Delete', ['user/comment-delete', 'id' => $comment->id], [
+                                                    <?= Html::a('<i class="bi bi-trash"></i> Delete', ['comment/delete', 'id' => $comment->id, 'returnUrl' => Url::to(['user/profile', 'id' => $user->id, '#' => 'comments-section'])], [
                                                         'class' => 'btn btn-sm btn-danger',
                                                         'title' => 'Delete Comment',
                                                         'data' => [

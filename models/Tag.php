@@ -71,13 +71,29 @@ class Tag extends ActiveRecord
     /**
      * Генерує slug з назви тега
      * Викликається перед збереженням, якщо slug не вказаний
+     * Забезпечує унікальність slug та обробку порожніх значень
      */
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
             // Генеруємо slug, якщо він порожній або містить тільки пробіли
             if (empty(trim($this->slug ?? ''))) {
-                $this->slug = Inflector::slug($this->name);
+                $baseSlug = Inflector::slug($this->name);
+                
+                // Якщо slug порожній після генерації, використовуємо ID або timestamp
+                if (empty($baseSlug)) {
+                    $baseSlug = 'tag-' . ($this->id ?? time());
+                }
+                
+                // Перевіряємо унікальність та додаємо суфікс при необхідності
+                $slug = $baseSlug;
+                $counter = 1;
+                while (static::find()->where(['slug' => $slug])->andWhere(['!=', 'id', $this->id ?? 0])->exists()) {
+                    $slug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+                
+                $this->slug = $slug;
             }
             return true;
         }

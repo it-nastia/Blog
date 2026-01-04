@@ -6,14 +6,14 @@
 use yii\bootstrap5\Html;
 use yii\grid\GridView;
 
-$this->title = 'Categories';
+$this->title = 'Manage Articles';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="category-index">
+<div class="article-manage">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('Create Category', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Article', ['create'], ['class' => 'btn btn-success']) ?>
     </div>
 
     <?= GridView::widget([
@@ -33,20 +33,41 @@ $this->params['breadcrumbs'][] = $this->title;
                 'contentOptions' => ['style' => 'width: 80px;'],
             ],
             
-            'name',
-            'slug',
+            'title',
             [
-                'attribute' => 'description',
+                'attribute' => 'category_id',
                 'value' => function ($model) {
-                    return $model->description ? \yii\helpers\StringHelper::truncate($model->description, 50) : '-';
+                    return $model->category ? Html::encode($model->category->name) : '-';
                 },
             ],
             [
-                'attribute' => 'articlesCount',
-                'label' => 'Articles',
+                'attribute' => 'status',
                 'value' => function ($model) {
-                    return $model->getArticlesCount();
+                    $statusLabels = [
+                        'draft' => '<span class="badge bg-secondary">Draft</span>',
+                        'published' => '<span class="badge bg-success">Published</span>',
+                    ];
+                    return $statusLabels[$model->status] ?? $model->status;
                 },
+                'format' => 'raw',
+            ],
+            [
+                'attribute' => 'views',
+                'label' => 'Views',
+            ],
+            [
+                'attribute' => 'tags',
+                'value' => function ($model) {
+                    if (empty($model->tags)) {
+                        return '<span class="text-muted">No tags</span>';
+                    }
+                    $tagNames = [];
+                    foreach ($model->tags as $tag) {
+                        $tagNames[] = Html::encode($tag->name);
+                    }
+                    return implode(', ', $tagNames);
+                },
+                'format' => 'raw',
             ],
             [
                 'attribute' => 'created_at',
@@ -59,11 +80,18 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'class' => 'yii\grid\ActionColumn',
                 'template' => '{view} {update} {delete}',
+                'urlCreator' => function ($action, $model, $key, $index) {
+                    if ($action === 'view') {
+                        return ['view', 'slug' => $model->slug];
+                    }
+                    return [$action, 'id' => $model->id];
+                },
                 'buttons' => [
                     'view' => function ($url, $model) {
                         return Html::a('<i class="bi bi-eye"></i>', $url, [
                             'title' => 'View',
                             'class' => 'btn btn-sm btn-outline-primary',
+                            'target' => '_blank',
                         ]);
                     },
                     'update' => function ($url, $model) {
@@ -77,7 +105,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             'title' => 'Delete',
                             'class' => 'btn btn-sm btn-outline-danger',
                             'data' => [
-                                'confirm' => 'Are you sure you want to delete this category?',
+                                'confirm' => 'Are you sure you want to delete this article?',
                                 'method' => 'post',
                             ],
                         ]);

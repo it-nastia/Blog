@@ -30,12 +30,23 @@ class CommentController extends Controller
                         'actions' => ['create'],
                         'roles' => ['@'], // Тільки авторизованим
                     ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'update', 'delete'],
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            // Тільки автори можуть переглядати, оновлювати та видаляти коментарі
+                            return !Yii::$app->user->isGuest && 
+                                   Yii::$app->user->identity->isAuthor();
+                        },
+                    ],
                 ],
             ],
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
                     'create' => ['POST'],
+                    'delete' => ['POST'],
                 ],
             ],
         ];
@@ -138,6 +149,140 @@ class CommentController extends Controller
         }
         
         return $this->goHome();
+    }
+
+    /**
+     * Updates an existing Comment model.
+     * Updates only the status (for moderation).
+     * If update is successful, the browser will be redirected to returnUrl if provided.
+     * @param int $id
+     * @return string|Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionUpdate($id)
+    {
+        $model = Comment::findOne($id);
+        if ($model === null) {
+            throw new NotFoundHttpException('Comment not found.');
+        }
+
+        // Перевіряємо, чи є коментар до статті автора
+        $article = Article::findOne($model->article_id);
+        if ($article === null || $article->author_id !== Yii::$app->user->id) {
+            throw new NotFoundHttpException('You do not have permission to update this comment.');
+        }
+
+        // Оновлюємо тільки статус
+        $post = Yii::$app->request->post('Comment');
+        if ($post && isset($post['status'])) {
+            $model->status = $post['status'];
+            if ($model->save(false)) {
+                Yii::$app->session->setFlash('success', 'Comment status updated successfully.');
+                
+                // Перевіряємо чи є returnUrl для перенаправлення
+                $returnUrl = Yii::$app->request->post('returnUrl');
+                if ($returnUrl) {
+                    return $this->redirect($returnUrl);
+                }
+
+                // Якщо немає returnUrl, перенаправляємо на список коментарів або статтю
+                return $this->redirect(['index']);
+            } else {
+                $errors = $model->getFirstErrors();
+                $errorMessage = !empty($errors) ? implode(', ', $errors) : 'Failed to update comment status.';
+                Yii::$app->session->setFlash('error', $errorMessage);
+            }
+        }
+
+        // Рендеримо форму для GET запиту
+        $returnUrl = Yii::$app->request->get('returnUrl');
+        return $this->render('update', [
+            'model' => $model,
+            'returnUrl' => $returnUrl,
+        ]);
+    }
+
+    /**
+     * Deletes an existing Comment model.
+     * If deletion is successful, the browser will be redirected to returnUrl if provided.
+     * @param int $id
+     * @return Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionDelete($id)
+    {
+        $model = Comment::findOne($id);
+        if ($model === null) {
+            throw new NotFoundHttpException('Comment not found.');
+        }
+
+        // Перевіряємо, чи є коментар до статті автора
+        $article = Article::findOne($model->article_id);
+        if ($article === null || $article->author_id !== Yii::$app->user->id) {
+            throw new NotFoundHttpException('You do not have permission to delete this comment.');
+        }
+
+        $model->delete();
+        Yii::$app->session->setFlash('success', 'Comment deleted successfully.');
+
+        // Перевіряємо чи є returnUrl
+        $returnUrl = Yii::$app->request->get('returnUrl');
+        if ($returnUrl) {
+            return $this->redirect($returnUrl);
+        }
+
+        // Якщо немає returnUrl, перенаправляємо на статтю
+        if ($article) {
+            return $this->redirect(['article/view', 'slug' => $article->slug]);
+        }
+
+        return $this->goHome();
+    }
+
+    /**
+     * Lists all comments for articles written by the current author.
+     * @return string
+     */
+    public function actionIndex()
+    {
+        $dataProvider = new \yii\data\ActiveDataProvider([
+            'query' => Comment::find()
+                ->joinWith('article')
+                ->where(['articles.author_id' => Yii::$app->user->id])
+                ->with(['user', 'article'])
+                ->orderBy(['created_at' => SORT_DESC]),
+            'pagination' => [
+                'pageSize' => 20,
+            ],
+        ]);
+
+        return $this->render('index', [
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    /**
+     * Displays a single Comment model.
+     * @param int $id
+     * @return string
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionView($id)
+    {
+        $model = Comment::findOne($id);
+        if ($model === null) {
+            throw new NotFoundHttpException('Comment not found.');
+        }
+
+        // Перевіряємо, чи є коментар до статті автора
+        $article = Article::findOne($model->article_id);
+        if ($article === null || $article->author_id !== Yii::$app->user->id) {
+            throw new NotFoundHttpException('You do not have permission to view this comment.');
+        }
+
+        return $this->render('view', [
+            'model' => $model,
+        ]);
     }
 }
 

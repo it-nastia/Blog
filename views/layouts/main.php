@@ -49,7 +49,7 @@ $this->registerLinkTag(['rel' => 'stylesheet', 'href' => 'https://cdn.jsdelivr.n
     foreach ($categories as $category) {
         $categoryItems[] = [
             'label' => Html::encode($category->name),
-            'url' => ['/article/index', 'category_id' => $category->id]
+            'url' => ['/article/index', 'category_slug' => $category->slug]
         ];
     }
     
@@ -75,6 +75,22 @@ $this->registerLinkTag(['rel' => 'stylesheet', 'href' => 'https://cdn.jsdelivr.n
     
     // Посилання "Про блог"
     $navItems[] = ['label' => 'About', 'url' => ['/site/about']];
+    
+    // Меню Admin для авторів
+    if (!Yii::$app->user->isGuest && Yii::$app->user->identity->isAuthor()) {
+        $adminItems = [
+            ['label' => 'Articles', 'url' => ['/article/manage']],
+            ['label' => 'Categories', 'url' => ['/category/index']],
+            ['label' => 'Tags', 'url' => ['/tag/index']],
+            ['label' => 'Comments', 'url' => ['/comment/index']],
+        ];
+        
+        $navItems[] = [
+            'label' => 'Admin',
+            'items' => $adminItems,
+            'dropdown' => true
+        ];
+    }
     
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav me-auto'],

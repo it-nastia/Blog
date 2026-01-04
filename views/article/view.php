@@ -43,7 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
                 <div class="meta-item">
                     <i class="bi bi-folder"></i>
-                    <?= Html::a(Html::encode($model->category->name), ['index', 'category_id' => $model->category_id], ['class' => 'category-link']) ?>
+                    <?= Html::a(Html::encode($model->category->name), ['index', 'category_slug' => $model->category->slug], ['class' => 'category-link']) ?>
                 </div>
                 <div class="meta-item">
                     <i class="bi bi-eye"></i>
@@ -60,7 +60,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?php foreach ($model->tags as $tag): ?>
                     <?= Html::a(
                         '#' . Html::encode($tag->name),
-                        ['index', 'tag_id' => $tag->id],
+                        ['index', 'tag_slug' => $tag->slug],
                         ['class' => 'tag-badge']
                     ) ?>
                 <?php endforeach; ?>

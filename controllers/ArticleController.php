@@ -34,7 +34,7 @@ class ArticleController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['create', 'update', 'delete'],
+                        'actions' => ['create', 'update', 'delete', 'manage'],
                         'roles' => ['@'], // Тільки авторизованим
                         'matchCallback' => function ($rule, $action) {
                             // Перевіряємо, чи є користувач автором
@@ -59,8 +59,8 @@ class ArticleController extends Controller
      */
     public function actionIndex()
     {
-        $categoryId = Yii::$app->request->get('category_id');
-        $tagId = Yii::$app->request->get('tag_id');
+        $categorySlug = Yii::$app->request->get('category_slug');
+        $tagSlug = Yii::$app->request->get('tag_slug');
         $search = Yii::$app->request->get('search');
         $sort = Yii::$app->request->get('sort', 'newest'); // По умолчанию: новейшие
 
@@ -87,16 +87,36 @@ class ArticleController extends Controller
                 break;
         }
 
-        // Фільтрація за категорією
-        if ($categoryId) {
-            $query->andWhere(['category_id' => $categoryId]);
+        // Фільтрація за категорією (по slug)
+        if ($categorySlug) {
+            $query = Article::findByCategorySlug($categorySlug)
+                ->with(['category', 'author', 'tags']);
+            // Применяем сортировку снова после findByCategorySlug
+            switch ($sort) {
+                case 'oldest':
+                    $query->orderBy(['created_at' => SORT_ASC]);
+                    break;
+                case 'popular':
+                    $query->orderBy(['views' => SORT_DESC]);
+                    break;
+                case 'title_asc':
+                    $query->orderBy(['title' => SORT_ASC]);
+                    break;
+                case 'title_desc':
+                    $query->orderBy(['title' => SORT_DESC]);
+                    break;
+                case 'newest':
+                default:
+                    $query->orderBy(['created_at' => SORT_DESC]);
+                    break;
+            }
         }
 
-        // Фільтрація за тегом
-        if ($tagId) {
-            $query = Article::findByTag($tagId)
+        // Фільтрація за тегом (по slug)
+        if ($tagSlug) {
+            $query = Article::findByTagSlug($tagSlug)
                 ->with(['category', 'author', 'tags']);
-            // Применяем сортировку снова после findByTag
+            // Применяем сортировку снова после findByTagSlug
             switch ($sort) {
                 case 'oldest':
                     $query->orderBy(['created_at' => SORT_ASC]);
@@ -151,8 +171,8 @@ class ArticleController extends Controller
         return $this->render('index', [
             'dataProvider' => $dataProvider,
             'categories' => $categories,
-            'selectedCategoryId' => $categoryId,
-            'selectedTagId' => $tagId,
+            'selectedCategorySlug' => $categorySlug,
+            'selectedTagSlug' => $tagSlug,
             'search' => $search,
             'sort' => $sort,
         ]);
@@ -211,6 +231,13 @@ class ArticleController extends Controller
                 }
 
                 Yii::$app->session->setFlash('success', 'Article created successfully.');
+                
+                // Перевіряємо чи є returnUrl для перенаправлення
+                $returnUrl = Yii::$app->request->post('returnUrl');
+                if ($returnUrl) {
+                    return $this->redirect($returnUrl);
+                }
+                
                 return $this->redirect(['view', 'slug' => $model->slug]);
             }
         }
@@ -258,6 +285,13 @@ class ArticleController extends Controller
                 }
 
                 Yii::$app->session->setFlash('success', 'Article updated successfully.');
+                
+                // Перевіряємо чи є returnUrl для перенаправлення
+                $returnUrl = Yii::$app->request->post('returnUrl');
+                if ($returnUrl) {
+                    return $this->redirect($returnUrl);
+                }
+                
                 return $this->redirect(['view', 'slug' => $model->slug]);
             }
         }
@@ -295,7 +329,35 @@ class ArticleController extends Controller
         $model->delete();
 
         Yii::$app->session->setFlash('success', 'Article deleted successfully.');
+        
+        // Перевіряємо чи є returnUrl
+        $returnUrl = Yii::$app->request->get('returnUrl');
+        if ($returnUrl) {
+            return $this->redirect($returnUrl);
+        }
+        
         return $this->redirect(['index']);
+    }
+
+    /**
+     * Lists all Article models for administration (all statuses, only author's articles).
+     * @return string
+     */
+    public function actionManage()
+    {
+        $dataProvider = new \yii\data\ActiveDataProvider([
+            'query' => Article::find()
+                ->where(['author_id' => Yii::$app->user->id])
+                ->with(['category', 'tags'])
+                ->orderBy(['created_at' => SORT_DESC]),
+            'pagination' => [
+                'pageSize' => 20,
+            ],
+        ]);
+
+        return $this->render('manage', [
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
     /**

@@ -6,14 +6,13 @@
 use yii\bootstrap5\Html;
 use yii\grid\GridView;
 
-$this->title = 'Categories';
+$this->title = 'Comments';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="category-index">
+<div class="comment-index">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('Create Category', ['create'], ['class' => 'btn btn-success']) ?>
     </div>
 
     <?= GridView::widget([
@@ -22,31 +21,50 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
             
             [
-                'attribute' => 'image',
+                'attribute' => 'article_id',
+                'label' => 'Article',
+                'value' => function ($model) {
+                    return $model->article ? Html::a(
+                        Html::encode($model->article->title),
+                        ['article/view', 'slug' => $model->article->slug],
+                        ['target' => '_blank']
+                    ) : '-';
+                },
                 'format' => 'raw',
-                'value' => function ($model) {
-                    if ($model->image) {
-                        return Html::img($model->image, ['style' => 'max-width: 50px; max-height: 50px; object-fit: cover;']);
-                    }
-                    return '<span class="text-muted">No image</span>';
-                },
-                'contentOptions' => ['style' => 'width: 80px;'],
             ],
-            
-            'name',
-            'slug',
             [
-                'attribute' => 'description',
+                'attribute' => 'user_id',
+                'label' => 'User',
                 'value' => function ($model) {
-                    return $model->description ? \yii\helpers\StringHelper::truncate($model->description, 50) : '-';
+                    return $model->user ? Html::encode($model->user->username) : '<span class="text-muted">Guest</span>';
+                },
+                'format' => 'raw',
+            ],
+            [
+                'attribute' => 'content',
+                'value' => function ($model) {
+                    return \yii\helpers\StringHelper::truncate(Html::encode($model->content), 100);
                 },
             ],
             [
-                'attribute' => 'articlesCount',
-                'label' => 'Articles',
+                'attribute' => 'status',
                 'value' => function ($model) {
-                    return $model->getArticlesCount();
+                    $statusLabels = [
+                        'pending' => '<span class="badge bg-warning">Pending</span>',
+                        'approved' => '<span class="badge bg-success">Approved</span>',
+                        'rejected' => '<span class="badge bg-danger">Rejected</span>',
+                    ];
+                    return $statusLabels[$model->status] ?? $model->status;
                 },
+                'format' => 'raw',
+            ],
+            [
+                'attribute' => 'parent_id',
+                'label' => 'Type',
+                'value' => function ($model) {
+                    return $model->parent_id ? '<span class="badge bg-info">Reply</span>' : '<span class="badge bg-primary">Comment</span>';
+                },
+                'format' => 'raw',
             ],
             [
                 'attribute' => 'created_at',
@@ -68,7 +86,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     },
                     'update' => function ($url, $model) {
                         return Html::a('<i class="bi bi-pencil"></i>', $url, [
-                            'title' => 'Update',
+                            'title' => 'Update Status',
                             'class' => 'btn btn-sm btn-outline-warning',
                         ]);
                     },
@@ -77,7 +95,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             'title' => 'Delete',
                             'class' => 'btn btn-sm btn-outline-danger',
                             'data' => [
-                                'confirm' => 'Are you sure you want to delete this category?',
+                                'confirm' => 'Are you sure you want to delete this comment?',
                                 'method' => 'post',
                             ],
                         ]);

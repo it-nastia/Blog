@@ -58,7 +58,7 @@ $this->title = 'Home';
                                         <span class="popular-category">
                                             <?= Html::a(
                                                 Html::encode($article->category->name ?? 'Uncategorized'),
-                                                ['/article/index', 'category_id' => $article->category_id ?? ''],
+                                                ['/article/index', 'category_slug' => $article->category->slug ?? ''],
                                                 ['class' => 'text-decoration-none']
                                             ) ?>
                                         </span>
@@ -119,7 +119,7 @@ $this->title = 'Home';
                                         ) .
                                     '</div>' .
                                     '<div class="category-card-label">' . Html::encode($category->name) . '</div>',
-                                    ['/article/index', 'category_id' => $category->id],
+                                    ['/article/index', 'category_slug' => $category->slug],
                                     ['class' => 'category-link']
                                 ) ?>
                             </div>
@@ -193,7 +193,7 @@ $this->title = 'Home';
                          <div class="tag-card">
                               <?= Html::a(
                                   '#' . Html::encode($tag->name),
-                                  ['/article/index', 'tag_id' => $tag->id],
+                                  ['/article/index', 'tag_slug' => $tag->slug],
                                   ['class' => 'tag-link']
                               ) ?>
                           </div>

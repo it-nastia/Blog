@@ -6,14 +6,14 @@
 use yii\bootstrap5\Html;
 use yii\grid\GridView;
 
-$this->title = 'Categories';
+$this->title = 'Tags';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="category-index">
+<div class="tag-index">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('Create Category', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Tag', ['create'], ['class' => 'btn btn-success']) ?>
     </div>
 
     <?= GridView::widget([
@@ -21,26 +21,8 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
             
-            [
-                'attribute' => 'image',
-                'format' => 'raw',
-                'value' => function ($model) {
-                    if ($model->image) {
-                        return Html::img($model->image, ['style' => 'max-width: 50px; max-height: 50px; object-fit: cover;']);
-                    }
-                    return '<span class="text-muted">No image</span>';
-                },
-                'contentOptions' => ['style' => 'width: 80px;'],
-            ],
-            
             'name',
             'slug',
-            [
-                'attribute' => 'description',
-                'value' => function ($model) {
-                    return $model->description ? \yii\helpers\StringHelper::truncate($model->description, 50) : '-';
-                },
-            ],
             [
                 'attribute' => 'articlesCount',
                 'label' => 'Articles',
@@ -77,7 +59,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             'title' => 'Delete',
                             'class' => 'btn btn-sm btn-outline-danger',
                             'data' => [
-                                'confirm' => 'Are you sure you want to delete this category?',
+                                'confirm' => 'Are you sure you want to delete this tag?',
                                 'method' => 'post',
                             ],
                         ]);
