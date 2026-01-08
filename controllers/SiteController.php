@@ -198,6 +198,24 @@ class SiteController extends Controller
     }
 
     /**
+     * Contact page with form and email sending (used by functional tests)
+     * @return string|\yii\web\Response
+     */
+    public function actionContact()
+    {
+        $model = new \app\models\ContactForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
+            Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible.');
+            return $this->refresh();
+        }
+
+        return $this->render('contact', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
      * Отримати випадкову статтю (для секції "Віпадковий фільм")
      * @return Response
      */

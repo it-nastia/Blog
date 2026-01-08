@@ -97,7 +97,6 @@ $this->params['breadcrumbs'][] = ['label' => 'Profile', 'url' => ['profile', 'id
                                 'options' => ['enctype' => 'multipart/form-data']
                             ]);
                             
-                            // Додаємо hidden поле для returnUrl
                             echo Html::hiddenInput('returnUrl', Url::to(['user/profile', 'id' => $user->id, '#' => 'articles-section']));
                             
                             $categories = ArrayHelper::map(\app\models\Category::find()->all(), 'id', 'name');

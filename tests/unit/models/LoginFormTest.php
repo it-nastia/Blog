@@ -8,6 +8,24 @@ class LoginFormTest extends \Codeception\Test\Unit
 {
     private $model;
 
+    protected function _before()
+    {
+        // ensure demo user exists for login tests
+        $demo = \app\models\User::findOne(['username' => 'demo']);
+        if (!$demo) {
+            $demo = new \app\models\User();
+            $demo->username = 'demo';
+            $demo->email = 'demo@example.com';
+            $demo->setPassword('demo');
+            $demo->auth_key = 'demo-auth-key';
+            $demo->role = 'reader';
+            $demo->status = \app\models\User::STATUS_ACTIVE;
+            $demo->created_at = time();
+            $demo->updated_at = time();
+            $demo->save(false);
+        }
+    }
+
     protected function _after()
     {
         \Yii::$app->user->logout();

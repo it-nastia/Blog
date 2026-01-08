@@ -239,6 +239,15 @@ class ArticleController extends Controller
                 }
                 
                 return $this->redirect(['view', 'slug' => $model->slug]);
+            } else {
+                // Логуємо помилки валідації для діагностики тестів
+                $errors = $model->getFirstErrors();
+                $message = 'Failed to create article.';
+                if (!empty($errors)) {
+                    $message .= ' ' . implode(' ', $errors);
+                }
+                Yii::error('Article save failed: ' . json_encode($model->errors), __METHOD__);
+                Yii::$app->session->setFlash('error', $message);
             }
         }
 

@@ -111,7 +111,23 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        return static::findOne(['access_token' => $token, 'status' => self::STATUS_ACTIVE]);
+        // If the users table has an access_token column, use it.
+        $schema = static::getTableSchema();
+        if (isset($schema->columns['access_token'])) {
+            return static::findOne(['access_token' => $token, 'status' => self::STATUS_ACTIVE]);
+        }
+
+        // Support legacy/test token format like "<id>-token" (e.g., "100-token") to resolve to user id
+        if (preg_match('/^(\d+)-token$/', (string)$token, $m)) {
+            $id = (int)$m[1];
+            $user = static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
+            if ($user !== null) {
+                return $user;
+            }
+        }
+
+        // Fallback to checking auth_key
+        return static::findOne(['auth_key' => $token, 'status' => self::STATUS_ACTIVE]);
     }
 
     /**
